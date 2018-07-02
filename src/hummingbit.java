@@ -15,7 +15,12 @@ public class hummingbit {
     private static String baseUrl;
     private URL requestUrl;
     private String deviceInstance;
-
+    private static final String SCREEN_UP = "Screen Up";
+    private static final String SCREEN_DOWN = "Screen Down";
+    private static final String TILT_LEFT = "Tilt Left";
+    private static final String TILT_RIGHT = "Tilt Right";
+    private static final String LOGO_UP = "Logo Up";
+    private static final String LOGO_DOWN = "Logo Down";
 
     private void verifyOutputResponse() {
         try {
@@ -420,10 +425,10 @@ public class hummingbit {
         }
     }
     public boolean isShaking(){
-        return true;
+        return getOrientationBoolean("Shake");
     }
 
-    public boolean getOrientation(String orientation) {
+    private boolean getOrientationBoolean(String orientation) {
         try {
             boolean response;
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -451,6 +456,24 @@ public class hummingbit {
         }
 
     }
+
+    public String getOrientation() {
+        boolean screenUp = getOrientationBoolean(SCREEN_UP);
+        boolean screenDown = getOrientationBoolean(SCREEN_DOWN);
+        boolean tiltLeft = getOrientationBoolean(TILT_LEFT);
+        boolean tiltRight = getOrientationBoolean(TILT_RIGHT);
+        boolean logoUp = getOrientationBoolean(LOGO_UP);
+        boolean logoDown = getOrientationBoolean(LOGO_DOWN);
+        if (screenUp) return SCREEN_UP;
+        else if (screenDown) return SCREEN_DOWN;
+        else if (screenDown) return SCREEN_DOWN;
+        else if (tiltLeft) return TILT_LEFT;
+        else if (tiltRight) return TILT_RIGHT;
+        else if (logoUp) return LOGO_UP;
+        else if (logoDown) return LOGO_DOWN;
+        return "";
+    }
+
     public void disconnect() {
         if (connection != null) {
             System.out.println("disconnecting from device");
