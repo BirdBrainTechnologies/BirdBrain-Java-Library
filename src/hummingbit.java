@@ -1,14 +1,17 @@
 import com.oracle.tools.packager.Log;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
-
+/**
+ * The HummingBit Library functions.
+ */
 public class hummingbit {
     private HttpURLConnection connection = null;
     private DataOutputStream out = null;
@@ -21,7 +24,11 @@ public class hummingbit {
     private static final String TILT_RIGHT = "Tilt Right";
     private static final String LOGO_UP = "Logo Up";
     private static final String LOGO_DOWN = "Logo Down";
-
+    private static final JFrame curFrame = new JFrame();
+    /**
+     * verifyOutputResponse checks whether the HTTP request response is valid or not.
+     * If the response code indicates that the response is invalid, the connector will be disconnected.
+     */
     private void verifyOutputResponse() {
         try {
             int responseCode = connection.getResponseCode();
@@ -46,6 +53,12 @@ public class hummingbit {
         }
     }
 
+    /**
+     * verifyResponse is used for retrieving sensor information.
+     * It checks whether the HTTP request request is valid or not and returns the response if it is valid.
+     * Otherwise, the connector will be disconnected.
+     * @return
+     */
     private String verifyResponse() {
         try {
             int responseCode = connection.getResponseCode();
@@ -77,25 +90,41 @@ public class hummingbit {
         }
     }
 
+    /**
+     * default constructor for the library. Construct the baseUrl and set the default device to be A
+     */
     public hummingbit() {
         baseUrl = "http://127.0.0.1:30061/hummingbird/";
         deviceInstance = "A";
     }
 
+    /**
+     * constructor for the library. Construct the baseUrl and set the default device to be input.
+     * @param device the input device that will be specified by the user.
+     */
     public hummingbit(String device) {
         baseUrl = "http://127.0.0.1:30061/hummingbird/";
         deviceInstance = device;
     }
 
+    /**
+     * setPositionServo sets the positionServo at a given port to a specific angle.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the position servo is attached to. (Range: 1-4)
+     * @param position The angle of the position servo. (Range: 0-180)
+     */
     public void setPositionServo(int port, int position) {
+        if (port > 0) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+        }
         try {
-            int degrees = (int) (position * 254.0/180.0);
+            int degrees = (int) (position * 254.0 / 180.0);
             StringBuilder resultUrl = new StringBuilder(baseUrl);
             String servoUrl = (resultUrl.append("out/")
-                                        .append("servo/")
-                                        .append(Integer.toString(port) + "/")
-                                        .append(Integer.toString(degrees) + "/")
-                                        .append(deviceInstance)).toString();
+                    .append("servo/")
+                    .append(Integer.toString(port) + "/")
+                    .append(Integer.toString(degrees) + "/")
+                    .append(deviceInstance)).toString();
             if (deviceInstance == "") {
                 servoUrl = servoUrl.substring(0, servoUrl.length() - 1);
             }
@@ -111,6 +140,12 @@ public class hummingbit {
         }
     }
 
+    /**
+     * setRotationServo sets the rotationServo at a given port to a specific speed.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the rotation servo is attached to. (Range: 1-4)
+     * @param speed The speed of the rotation servo. (Range: -100-100)
+     */
     public void setRotationServo(int port, int speed) {
         try {
             if ((speed > -10) && (speed < 10)) {
@@ -140,10 +175,15 @@ public class hummingbit {
         }
     }
 
-
+    /**
+     * setLED sets the LED at a given port to a specific light intensity.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the LED is attached to. (Range: 1-4)
+     * @param intensity The intensity of the LED. (Range: 0-100)
+     */
     public void setLED(int port, int intensity) {
         try {
-            intensity = (int) (intensity * 255.0/100.0);
+            intensity = (int) (intensity * 255.0 / 100.0);
             StringBuilder resultUrl = new StringBuilder(baseUrl);
             String ledUrl = (resultUrl.append("out/")
                     .append("led/")
@@ -165,11 +205,19 @@ public class hummingbit {
         }
     }
 
+    /**
+     * setTriLED sets the triLED at a given port to a specific color.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the LED is attached to. (Range: 1-4)
+     * @param redIntensity The intensity of red light of the triLED. (Range: 0-100)
+     * @param greenIntensity The intensity of green light of the triLED. (Range: 0-100)
+     * @param blueIntensity The intensity of blue light of the triLED. (Range: 0-100)
+     */
     public void setTriLED(int port, int redIntensity, int greenIntensity, int blueIntensity) {
         try {
-            redIntensity = (int) (redIntensity * 255.0/100.0);
-            greenIntensity = (int) (greenIntensity * 255.0/100.0);
-            blueIntensity = (int) (blueIntensity * 255.0/100.0);
+            redIntensity = (int) (redIntensity * 255.0 / 100.0);
+            greenIntensity = (int) (greenIntensity * 255.0 / 100.0);
+            blueIntensity = (int) (blueIntensity * 255.0 / 100.0);
 
             StringBuilder resultUrl = new StringBuilder(baseUrl);
             String triLedUrl = (resultUrl.append("out/")
@@ -194,6 +242,10 @@ public class hummingbit {
         }
     }
 
+    /**
+     * print lets the LED Array display a given message.
+     * @param msg The message that will be displayed on the LED Array.
+     */
     public void print(String msg) {
         try {
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -216,13 +268,18 @@ public class hummingbit {
         }
     }
 
+    /**
+     * setDisplay lets the LED Array display a pattern based on an array of booleans.
+     * @param booVals The list of booleans that the function takes in to set the LED Array.
+     *                True means on and False means off.
+     */
     public void setDisplay(boolean[] booVals) {
         try {
             StringBuilder resultUrl = new StringBuilder(baseUrl);
             int ledLen = booVals.length;
 
             resultUrl = resultUrl.append("out/")
-                                 .append("symbol/");
+                    .append("symbol/");
             if (deviceInstance != "") {
                 resultUrl = resultUrl.append(deviceInstance + "/");
             }
@@ -245,7 +302,10 @@ public class hummingbit {
             Log.debug("error:" + e.getMessage());
         }
     }
-
+    /**
+     * getSensorValue returns the raw sensor value at a given port
+     * @param port The port that the sensor is attached to. (Range: 1-4)
+     */
     private int getSensorValue(int port) {
         try {
             int response;
@@ -273,28 +333,51 @@ public class hummingbit {
             return -1;
         }
     }
-
-    public int getLight(int port){
+    /**
+     * getLight returns light sensor value at a given port after processing the raw sensor value retrieved.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the light sensor is attached to. (Range: 1-4)
+     */
+    public int getLight(int port) {
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0/100.0);
+        return (int) (sensorResponse * 255.0 / 100.0);
     }
 
-    public int getSound(int port){
+    /**
+     * getSound returns sound sensor value at a given port after processing the raw sensor value retrieved.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the sound sensor is attached to. (Range: 1-4)
+     */
+    public int getSound(int port) {
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0/100.0);
+        return (int) (sensorResponse * 255.0 / 100.0);
     }
 
-    public int getDistance(int port){
+    /**
+     * getDistance returns distance sensor value at a given port after processing the raw sensor value retrieved.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the distance sensor is attached to. (Range: 1-4)
+     */
+    public int getDistance(int port) {
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0/100.0);
+        return (int) (sensorResponse * 255.0 / 100.0);
     }
 
-    public int getDial(int port){
+    /**
+     * getDial returns dial value at a given port after processing the raw sensor value retrieved.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param port The port that the dial is attached to. (Range: 1-4)
+     */
+    public int getDial(int port) {
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0/100.0);
+        return (int) (sensorResponse * 255.0 / 100.0);
     }
 
-    public double getAccelerationInDirs(String dir) {
+    /**
+     * getAccelerationInDirs returns accleration value in a specified direction.
+     * @param dir The direction of which the accleration will be returned.
+     */
+    private double getAccelerationInDirs(String dir) {
         try {
             double response;
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -322,7 +405,11 @@ public class hummingbit {
         }
     }
 
-    public double getMagnetometerValInDirs(String dir) {
+    /**
+     * getMagnetometerValInDirs returns magnetometer value in a specified direction.
+     * @param dir The direction of which the magnetometer value will be returned.
+     */
+    private double getMagnetometerValInDirs(String dir) {
         try {
             double response;
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -350,7 +437,11 @@ public class hummingbit {
         }
     }
 
-    public double[] getAcceleration(){
+    /**
+     * getAcceleration returns accelerations in 3 directions (X,Y,Z) in m/s^2.
+     * @return the accelerations in 3 directions (X,Y,Z) in m/s^2.
+     */
+    public double[] getAcceleration() {
         double[] accelerations = new double[3];
         double resX = getAccelerationInDirs("X");
         double resY = getAccelerationInDirs("Y");
@@ -360,7 +451,27 @@ public class hummingbit {
         accelerations[2] = resZ;
         return accelerations;
     }
-    public int getCompass(){
+
+    /**
+     * getMagnetometer returns magnetometer values in 3 directions (X,Y,Z) in microT.
+     * @return the magnetometer values in 3 directions (X,Y,Z) in microT.
+     */
+    public double[] getMagnetometer() {
+        double[] magnetometerVals = new double[3];
+        double resX = getMagnetometerValInDirs("X");
+        double resY = getMagnetometerValInDirs("Y");
+        double resZ = getMagnetometerValInDirs("Z");
+        magnetometerVals[0] = resX;
+        magnetometerVals[1] = resY;
+        magnetometerVals[2] = resZ;
+        return magnetometerVals;
+    }
+
+    /**
+     * getCompass returns the direction in degrees.
+     * @return the direction in degrees. (Range: 0-360)
+     */
+    public int getCompass() {
         try {
             int response;
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -386,18 +497,14 @@ public class hummingbit {
             return -1;
         }
     }
-    public double[] getMagnetometer(){
-        double[] magnetometerVals = new double[3];
-        double resX = getMagnetometerValInDirs("X");
-        double resY = getMagnetometerValInDirs("Y");
-        double resZ = getMagnetometerValInDirs("Z");
-        magnetometerVals[0] = resX;
-        magnetometerVals[1] = resY;
-        magnetometerVals[2] = resZ;
-        return magnetometerVals;
-    }
 
-    public String getButton(String button){
+    /**
+     * getButton takes in a button and checks whether it is pressed.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     * @param button the button that will be checked whether is it pressed or not. (Range: "A", "B")
+     * @return "True" if the button is pressed and "false" otherwise.
+     */
+    public String getButton(String button) {
         try {
             String response;
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -424,10 +531,20 @@ public class hummingbit {
             return "";
         }
     }
-    public boolean isShaking(){
+
+    /**
+     * isShaking indicates whether the device is being shaked
+     * @return true if the device is being shaked and false otherwise.
+     */
+    public boolean isShaking() {
         return getOrientationBoolean("Shake");
     }
 
+    /**
+     * getOrientationBoolean checks whether the device currently being held to a specific orientation.
+     * @param orientation The orientation that will be checked.
+     * @return "true" if the device is held to the orientation and false otherwise.
+     */
     private boolean getOrientationBoolean(String orientation) {
         try {
             boolean response;
@@ -457,6 +574,10 @@ public class hummingbit {
 
     }
 
+    /**
+     * getOrientation informs about the device's current orientation.
+     * @return the orientation of the device. (Range: screenUp, screenDown, tiltLeft, tiltRight, logoUp, logoDown)
+     */
     public String getOrientation() {
         boolean screenUp = getOrientationBoolean(SCREEN_UP);
         boolean screenDown = getOrientationBoolean(SCREEN_DOWN);
@@ -474,6 +595,9 @@ public class hummingbit {
         return "";
     }
 
+    /**
+     * disconnect disconnects the library from the connector. 
+     */
     public void disconnect() {
         if (connection != null) {
             System.out.println("disconnecting from device");
