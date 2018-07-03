@@ -32,6 +32,6 @@ public class main {
         System.out.println("getOrientation: " + testHummingBit.getOrientation());
         System.out.println("getCompass: " + testHummingBit.getCompass());
         System.out.println("getButton: " + testHummingBit.getButton("A"));
-
+        testHummingBit.disconnect();
     }
 }

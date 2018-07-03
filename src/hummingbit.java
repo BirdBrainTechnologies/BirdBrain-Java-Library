@@ -43,7 +43,6 @@ public class hummingbit {
                     response.append(inputLine);
                 }
                 in.close();
-                System.out.println("response" + response.toString());
             } else {
                 System.out.println("GET request not worked");
                 disconnect();
@@ -133,12 +132,10 @@ public class hummingbit {
             if (deviceInstance == "") {
                 servoUrl = servoUrl.substring(0, servoUrl.length() - 1);
             }
-            System.out.println("servoUrl: " + servoUrl);
             requestUrl = new URL(servoUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
-            System.out.println("positioning");
             verifyOutputResponse();
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -173,12 +170,10 @@ public class hummingbit {
             if (deviceInstance == "") {
                 rotationUrl = rotationUrl.substring(0, rotationUrl.length() - 1);
             }
-            System.out.println("servoUrl: " + rotationUrl);
             requestUrl = new URL(rotationUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
-            System.out.println("rotating");
             verifyOutputResponse();
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -208,7 +203,6 @@ public class hummingbit {
             if (deviceInstance == "") {
                 ledUrl = ledUrl.substring(0, ledUrl.length() - 1);
             }
-            System.out.println("lighting: " + ledUrl);
             requestUrl = new URL(ledUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -251,7 +245,6 @@ public class hummingbit {
             if (deviceInstance == "") {
                 triLedUrl = triLedUrl.substring(0, triLedUrl.length() - 1);
             }
-            System.out.println("tri-lighting: " + triLedUrl);
             requestUrl = new URL(triLedUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -278,7 +271,6 @@ public class hummingbit {
             if (deviceInstance == "") {
                 printUrl = printUrl.substring(0, printUrl.length() - 1);
             }
-            System.out.println("printing: " + printUrl);
             requestUrl = new URL(printUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -314,7 +306,6 @@ public class hummingbit {
             String symbolUrl = resultUrl.toString();
             symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
 
-            System.out.println("symbols: " + symbolUrl);
             requestUrl = new URL(symbolUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -344,14 +335,12 @@ public class hummingbit {
                 sensorUrl = sensorUrl.substring(0, sensorUrl.length() - 1);
             }
 
-            System.out.println("gettingSensor: " + sensorUrl);
             requestUrl = new URL(sensorUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
             response = Integer.parseInt(verifyResponse());
-            System.out.println("sensor response: " + response);
             return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -438,14 +427,12 @@ public class hummingbit {
                 acclUrl = acclUrl.substring(0, acclUrl.length() - 1);
             }
 
-            System.out.println("gettingAccleration: " + acclUrl);
             requestUrl = new URL(acclUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
             response = Double.parseDouble(verifyResponse());
-            System.out.println("accleration response: " + response);
             return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -471,14 +458,12 @@ public class hummingbit {
                 magUrl = magUrl.substring(0, magUrl.length() - 1);
             }
 
-            System.out.println("gettingMagnetometerVals: " + magUrl);
             requestUrl = new URL(magUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
             response = Double.parseDouble(verifyResponse());
-            System.out.println("magnetometer response: " + response);
             return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -535,14 +520,12 @@ public class hummingbit {
                 compasslUrl = compasslUrl.substring(0, compasslUrl.length() - 1);
             }
 
-            System.out.println("gettingCompass: " + compasslUrl);
             requestUrl = new URL(compasslUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
             response = (int) Double.parseDouble(verifyResponse());
-            System.out.println("Compass response: " + response);
             return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -574,14 +557,12 @@ public class hummingbit {
                 buttonUrl = buttonUrl.substring(0, buttonUrl.length() - 1);
             }
 
-            System.out.println("gettingButton: " + buttonUrl);
             requestUrl = new URL(buttonUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
             response = verifyResponse();
-            System.out.println("Compass response: " + response);
             return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -617,14 +598,12 @@ public class hummingbit {
                 orientationUrl = orientationUrl.substring(0, orientationUrl.length() - 1);
             }
 
-            System.out.println("gettingOrientation: " + orientationUrl);
             requestUrl = new URL(orientationUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
             response = Boolean.parseBoolean(verifyResponse());
-            System.out.println("Orientation response: " + response);
             return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
@@ -660,8 +639,8 @@ public class hummingbit {
      */
     public void disconnect() {
         if (connection != null) {
-            System.out.println("disconnecting from device");
             connection.disconnect();
+            connection = null;
         }
     }
 }
