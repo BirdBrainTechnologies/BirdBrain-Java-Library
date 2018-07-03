@@ -18,12 +18,12 @@ public class hummingbit {
     private static String baseUrl;
     private URL requestUrl;
     private String deviceInstance;
-    private static final String SCREEN_UP = "Screen Up";
-    private static final String SCREEN_DOWN = "Screen Down";
-    private static final String TILT_LEFT = "Tilt Left";
-    private static final String TILT_RIGHT = "Tilt Right";
-    private static final String LOGO_UP = "Logo Up";
-    private static final String LOGO_DOWN = "Logo Down";
+    private static final String SCREEN_UP = "ScreenUp";
+    private static final String SCREEN_DOWN = "ScreenDown";
+    private static final String TILT_LEFT = "TiltLeft";
+    private static final String TILT_RIGHT = "TiltRight";
+    private static final String LOGO_UP = "LogoUp";
+    private static final String LOGO_DOWN = "LogoDown";
     private static final JFrame curFrame = new JFrame();
 
     /**
@@ -120,6 +120,7 @@ public class hummingbit {
     public void setPositionServo(int port, int position) {
         if (!(port >= 1 && port <= 4) || !(position >= 0 && position <= 180)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
+            return;
         }
         try {
             int degrees = (int) (position * 254.0 / 180.0);
@@ -154,6 +155,7 @@ public class hummingbit {
     public void setRotationServo(int port, int speed) {
         if (!(port >= 1 && port <= 4) || !(speed >= -100 && speed <= 100)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
+            return;
         }
         try {
             if ((speed > -10) && (speed < 10)) {
@@ -193,6 +195,7 @@ public class hummingbit {
     public void setLED(int port, int intensity) {
         if (!(port >= 1 && port <= 4) || !(intensity >= 0 && intensity <= 100)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
+            return;
         }
         try {
             intensity = (int) (intensity * 255.0 / 100.0);
@@ -230,6 +233,7 @@ public class hummingbit {
         if (!(port >= 1 && port <= 4) || !(redIntensity >= 0 && redIntensity <= 100) ||
                 !(greenIntensity >= 0 && greenIntensity <= 100) || !(blueIntensity >= 0 && blueIntensity <= 100)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
+            return;
         }
         try {
             redIntensity = (int) (redIntensity * 255.0 / 100.0);
@@ -364,6 +368,7 @@ public class hummingbit {
     public int getLight(int port) {
         if (!(port >= 1 && port <= 4)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+            return -1;
         }
         int sensorResponse = getSensorValue(port);
         return (int) (sensorResponse * 100.0 / 255.0);
@@ -378,6 +383,7 @@ public class hummingbit {
     public int getSound(int port) {
         if (!(port >= 1 && port <= 4)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+            return -1;
         }
         int sensorResponse = getSensorValue(port);
         return (int) (sensorResponse * 200.0 / 255.0);
@@ -392,6 +398,7 @@ public class hummingbit {
     public int getDistance(int port) {
         if (!(port >= 1 && port <= 4)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+            return -1;
         }
         int sensorResponse = getSensorValue(port);
         return sensorResponse;
@@ -406,6 +413,7 @@ public class hummingbit {
     public int getDial(int port) {
         if (!(port >= 1 && port <= 4)) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+            return -1;
         }
         int sensorResponse = getSensorValue(port);
         int processedResponse = (int) (sensorResponse * 100.0 / 230.0);
@@ -438,7 +446,7 @@ public class hummingbit {
 
             response = Double.parseDouble(verifyResponse());
             System.out.println("accleration response: " + response);
-            return response * 196.0 / 1280.0;
+            return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
             return -1;
@@ -471,7 +479,7 @@ public class hummingbit {
 
             response = Double.parseDouble(verifyResponse());
             System.out.println("magnetometer response: " + response);
-            return response * 1.0 / 10.0;
+            return response;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
             return -1;
@@ -533,7 +541,7 @@ public class hummingbit {
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
-            response = Integer.parseInt(verifyResponse());
+            response = (int) Double.parseDouble(verifyResponse());
             System.out.println("Compass response: " + response);
             return response;
         } catch (IOException e) {
@@ -552,6 +560,7 @@ public class hummingbit {
     public String getButton(String button) {
         if (!(button.equals("A") || button.equals("B"))) {
             JOptionPane.showMessageDialog(curFrame, "Invalid Button");
+            return "";
         }
         try {
             String response;
