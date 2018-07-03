@@ -25,6 +25,7 @@ public class hummingbit {
     private static final String LOGO_UP = "Logo Up";
     private static final String LOGO_DOWN = "Logo Down";
     private static final JFrame curFrame = new JFrame();
+
     /**
      * verifyOutputResponse checks whether the HTTP request response is valid or not.
      * If the response code indicates that the response is invalid, the connector will be disconnected.
@@ -57,6 +58,7 @@ public class hummingbit {
      * verifyResponse is used for retrieving sensor information.
      * It checks whether the HTTP request request is valid or not and returns the response if it is valid.
      * Otherwise, the connector will be disconnected.
+     *
      * @return
      */
     private String verifyResponse() {
@@ -100,6 +102,7 @@ public class hummingbit {
 
     /**
      * constructor for the library. Construct the baseUrl and set the default device to be input.
+     *
      * @param device the input device that will be specified by the user.
      */
     public hummingbit(String device) {
@@ -110,12 +113,13 @@ public class hummingbit {
     /**
      * setPositionServo sets the positionServo at a given port to a specific angle.
      * The function shows a warning dialog if the inputs are not in the specified range.
-     * @param port The port that the position servo is attached to. (Range: 1-4)
+     *
+     * @param port     The port that the position servo is attached to. (Range: 1-4)
      * @param position The angle of the position servo. (Range: 0-180)
      */
     public void setPositionServo(int port, int position) {
-        if (port > 0) {
-            JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+        if (!(port >= 1 && port <= 4) || !(position >= 0 && position <= 180)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
         }
         try {
             int degrees = (int) (position * 254.0 / 180.0);
@@ -143,10 +147,14 @@ public class hummingbit {
     /**
      * setRotationServo sets the rotationServo at a given port to a specific speed.
      * The function shows a warning dialog if the inputs are not in the specified range.
-     * @param port The port that the rotation servo is attached to. (Range: 1-4)
+     *
+     * @param port  The port that the rotation servo is attached to. (Range: 1-4)
      * @param speed The speed of the rotation servo. (Range: -100-100)
      */
     public void setRotationServo(int port, int speed) {
+        if (!(port >= 1 && port <= 4) || !(speed >= -100 && speed <= 100)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
+        }
         try {
             if ((speed > -10) && (speed < 10)) {
                 speed = 255;
@@ -178,10 +186,14 @@ public class hummingbit {
     /**
      * setLED sets the LED at a given port to a specific light intensity.
      * The function shows a warning dialog if the inputs are not in the specified range.
-     * @param port The port that the LED is attached to. (Range: 1-4)
+     *
+     * @param port      The port that the LED is attached to. (Range: 1-4)
      * @param intensity The intensity of the LED. (Range: 0-100)
      */
     public void setLED(int port, int intensity) {
+        if (!(port >= 1 && port <= 4) || !(intensity >= 0 && intensity <= 100)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
+        }
         try {
             intensity = (int) (intensity * 255.0 / 100.0);
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -208,12 +220,17 @@ public class hummingbit {
     /**
      * setTriLED sets the triLED at a given port to a specific color.
      * The function shows a warning dialog if the inputs are not in the specified range.
-     * @param port The port that the LED is attached to. (Range: 1-4)
-     * @param redIntensity The intensity of red light of the triLED. (Range: 0-100)
+     *
+     * @param port           The port that the LED is attached to. (Range: 1-4)
+     * @param redIntensity   The intensity of red light of the triLED. (Range: 0-100)
      * @param greenIntensity The intensity of green light of the triLED. (Range: 0-100)
-     * @param blueIntensity The intensity of blue light of the triLED. (Range: 0-100)
+     * @param blueIntensity  The intensity of blue light of the triLED. (Range: 0-100)
      */
     public void setTriLED(int port, int redIntensity, int greenIntensity, int blueIntensity) {
+        if (!(port >= 1 && port <= 4) || !(redIntensity >= 0 && redIntensity <= 100) ||
+                !(greenIntensity >= 0 && greenIntensity <= 100) || !(blueIntensity >= 0 && blueIntensity <= 100)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Argument");
+        }
         try {
             redIntensity = (int) (redIntensity * 255.0 / 100.0);
             greenIntensity = (int) (greenIntensity * 255.0 / 100.0);
@@ -244,6 +261,7 @@ public class hummingbit {
 
     /**
      * print lets the LED Array display a given message.
+     *
      * @param msg The message that will be displayed on the LED Array.
      */
     public void print(String msg) {
@@ -270,6 +288,7 @@ public class hummingbit {
 
     /**
      * setDisplay lets the LED Array display a pattern based on an array of booleans.
+     *
      * @param booVals The list of booleans that the function takes in to set the LED Array.
      *                True means on and False means off.
      */
@@ -302,8 +321,10 @@ public class hummingbit {
             Log.debug("error:" + e.getMessage());
         }
     }
+
     /**
      * getSensorValue returns the raw sensor value at a given port
+     *
      * @param port The port that the sensor is attached to. (Range: 1-4)
      */
     private int getSensorValue(int port) {
@@ -333,12 +354,17 @@ public class hummingbit {
             return -1;
         }
     }
+
     /**
      * getLight returns light sensor value at a given port after processing the raw sensor value retrieved.
      * The function shows a warning dialog if the inputs are not in the specified range.
+     *
      * @param port The port that the light sensor is attached to. (Range: 1-4)
      */
     public int getLight(int port) {
+        if (!(port >= 1 && port <= 4)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+        }
         int sensorResponse = getSensorValue(port);
         return (int) (sensorResponse * 255.0 / 100.0);
     }
@@ -346,9 +372,13 @@ public class hummingbit {
     /**
      * getSound returns sound sensor value at a given port after processing the raw sensor value retrieved.
      * The function shows a warning dialog if the inputs are not in the specified range.
+     *
      * @param port The port that the sound sensor is attached to. (Range: 1-4)
      */
     public int getSound(int port) {
+        if (!(port >= 1 && port <= 4)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+        }
         int sensorResponse = getSensorValue(port);
         return (int) (sensorResponse * 255.0 / 100.0);
     }
@@ -356,9 +386,13 @@ public class hummingbit {
     /**
      * getDistance returns distance sensor value at a given port after processing the raw sensor value retrieved.
      * The function shows a warning dialog if the inputs are not in the specified range.
+     *
      * @param port The port that the distance sensor is attached to. (Range: 1-4)
      */
     public int getDistance(int port) {
+        if (!(port >= 1 && port <= 4)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+        }
         int sensorResponse = getSensorValue(port);
         return (int) (sensorResponse * 255.0 / 100.0);
     }
@@ -366,15 +400,20 @@ public class hummingbit {
     /**
      * getDial returns dial value at a given port after processing the raw sensor value retrieved.
      * The function shows a warning dialog if the inputs are not in the specified range.
+     *
      * @param port The port that the dial is attached to. (Range: 1-4)
      */
     public int getDial(int port) {
+        if (!(port >= 1 && port <= 4)) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
+        }
         int sensorResponse = getSensorValue(port);
         return (int) (sensorResponse * 255.0 / 100.0);
     }
 
     /**
      * getAccelerationInDirs returns accleration value in a specified direction.
+     *
      * @param dir The direction of which the accleration will be returned.
      */
     private double getAccelerationInDirs(String dir) {
@@ -407,6 +446,7 @@ public class hummingbit {
 
     /**
      * getMagnetometerValInDirs returns magnetometer value in a specified direction.
+     *
      * @param dir The direction of which the magnetometer value will be returned.
      */
     private double getMagnetometerValInDirs(String dir) {
@@ -439,6 +479,7 @@ public class hummingbit {
 
     /**
      * getAcceleration returns accelerations in 3 directions (X,Y,Z) in m/s^2.
+     *
      * @return the accelerations in 3 directions (X,Y,Z) in m/s^2.
      */
     public double[] getAcceleration() {
@@ -454,6 +495,7 @@ public class hummingbit {
 
     /**
      * getMagnetometer returns magnetometer values in 3 directions (X,Y,Z) in microT.
+     *
      * @return the magnetometer values in 3 directions (X,Y,Z) in microT.
      */
     public double[] getMagnetometer() {
@@ -469,6 +511,7 @@ public class hummingbit {
 
     /**
      * getCompass returns the direction in degrees.
+     *
      * @return the direction in degrees. (Range: 0-360)
      */
     public int getCompass() {
@@ -501,10 +544,14 @@ public class hummingbit {
     /**
      * getButton takes in a button and checks whether it is pressed.
      * The function shows a warning dialog if the inputs are not in the specified range.
+     *
      * @param button the button that will be checked whether is it pressed or not. (Range: "A", "B")
      * @return "True" if the button is pressed and "false" otherwise.
      */
     public String getButton(String button) {
+        if (!(button.equals("A") || button.equals("B"))) {
+            JOptionPane.showMessageDialog(curFrame, "Invalid Button");
+        }
         try {
             String response;
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -534,6 +581,7 @@ public class hummingbit {
 
     /**
      * isShaking indicates whether the device is being shaked
+     *
      * @return true if the device is being shaked and false otherwise.
      */
     public boolean isShaking() {
@@ -542,6 +590,7 @@ public class hummingbit {
 
     /**
      * getOrientationBoolean checks whether the device currently being held to a specific orientation.
+     *
      * @param orientation The orientation that will be checked.
      * @return "true" if the device is held to the orientation and false otherwise.
      */
@@ -576,6 +625,7 @@ public class hummingbit {
 
     /**
      * getOrientation informs about the device's current orientation.
+     *
      * @return the orientation of the device. (Range: screenUp, screenDown, tiltLeft, tiltRight, logoUp, logoDown)
      */
     public String getOrientation() {
@@ -596,7 +646,7 @@ public class hummingbit {
     }
 
     /**
-     * disconnect disconnects the library from the connector. 
+     * disconnect disconnects the library from the connector.
      */
     public void disconnect() {
         if (connection != null) {
