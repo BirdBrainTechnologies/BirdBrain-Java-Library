@@ -366,7 +366,7 @@ public class hummingbit {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
         }
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0 / 100.0);
+        return (int) (sensorResponse * 100.0 / 255.0);
     }
 
     /**
@@ -380,7 +380,7 @@ public class hummingbit {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
         }
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0 / 100.0);
+        return (int) (sensorResponse * 200.0 / 255.0);
     }
 
     /**
@@ -394,7 +394,7 @@ public class hummingbit {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
         }
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0 / 100.0);
+        return sensorResponse;
     }
 
     /**
@@ -408,7 +408,8 @@ public class hummingbit {
             JOptionPane.showMessageDialog(curFrame, "Invalid Port Number");
         }
         int sensorResponse = getSensorValue(port);
-        return (int) (sensorResponse * 255.0 / 100.0);
+        int processedResponse = (int) (sensorResponse * 100.0 / 230.0);
+        return processedResponse >= 100 ? 100 : processedResponse;
     }
 
     /**
@@ -437,7 +438,7 @@ public class hummingbit {
 
             response = Double.parseDouble(verifyResponse());
             System.out.println("accleration response: " + response);
-            return response;
+            return response * 196.0 / 1280.0;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
             return -1;
@@ -470,7 +471,7 @@ public class hummingbit {
 
             response = Double.parseDouble(verifyResponse());
             System.out.println("magnetometer response: " + response);
-            return response;
+            return response * 1.0 / 10.0;
         } catch (IOException e) {
             Log.debug("error:" + e.getMessage());
             return -1;
