@@ -390,7 +390,7 @@ public class hummingbit {
             return -1;
         }
         int sensorResponse = getSensorValue(port);
-        return sensorResponse;
+        return (int) (sensorResponse * 117.0 / 100.0);
     }
 
     /**
