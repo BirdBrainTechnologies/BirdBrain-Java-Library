@@ -1,0 +1,417 @@
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+/**
+ * This class controls a micro:bit via bluetooth. It includes methods to print on the micro:bit LED array or 
+ * set those LEDs individually. It also contains methods to read the values of the micro:bit accelerometer and magnetometer.
+ * 
+ * Mike Yuan and Bambi Breewer, BirdBrain Technologies LLC
+ * November 2018
+ */
+public class Microbit {
+	// Variables used to make http request to control the micro:bit (and Hummingbird Bit)
+    protected HttpURLConnection connection = null;
+    protected static String baseUrl = "http://127.0.0.1:30061/hummingbird/";
+    protected URL requestUrl;
+    
+    protected String deviceInstance;		// A, B, or C
+    
+    // String variables used to return the orientation of the micro:bit
+    private static final String SCREEN_UP = "Screen%20Up";
+    private static final String SCREEN_DOWN = "Screen%20Down";
+    private static final String TILT_LEFT = "Tilt%20Left";
+    private static final String TILT_RIGHT = "Tilt%20Right";
+    private static final String LOGO_UP = "Logo%20Up";
+    private static final String LOGO_DOWN = "Logo%20Down";
+    private static final String SHAKE = "Shake";
+
+    private String outputError = "Error: Could not set micro:bit display: ";
+	private String inputError = "Error: Could not read micro:bit sensor: ";
+    
+    /**
+     * verifyOutputResponse checks whether the HTTP request response is valid or not.
+     * If the response code indicates that the response is invalid, the connector will be disconnected.
+     */
+    protected void verifyOutputResponse() {
+        try {
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+            } else {
+                System.out.println(outputError);
+                disconnect();
+            }
+        } catch (IOException e) {
+        		System.out.println(outputError + e.getMessage());
+            disconnect();
+        }
+    }
+
+    /**
+     * verifyResponse is used for retrieving sensor information.
+     * It checks whether the HTTP request request is valid or not and returns the response if it is valid.
+     * Otherwise, the connector will be disconnected.
+     *
+     * @return
+     */
+    protected String verifyResponse() {
+        try {
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                if (response.toString().contains("Not Connected")) {
+                    return "Not Connected";
+                } else {
+                    return response.toString();
+                }
+            } else {
+                System.out.println(inputError);
+                disconnect();
+                return "Not Connected";
+            }
+        } catch (IOException e) {
+        		System.out.println(inputError + e.getMessage());
+            disconnect();
+            return "Not Connected";
+        }
+    }
+
+    /**
+     * default constructor for the library. Construct the baseUrl and set the default device to be A
+     */
+    public Microbit() {
+        deviceInstance = "A";
+    }
+
+    /**
+     * constructor for the library. Construct the baseUrl and set the default device to be input.
+     *
+     * @param device the input device that will be specified by the user.
+     */
+    public Microbit(String device) {
+    	if (!((device == "A")||(device == "B")||(device == "C"))) {
+        	System.out.println("Error: Device must be A, B, or C.");
+        	deviceInstance = "A";
+        } else {
+        	deviceInstance = device;
+        }
+    }
+
+    
+    /**
+     * print() lets the LED Array display a given message.
+     *
+     * @param msg The message that will be displayed on the LED Array.
+     */
+    public void print(String msg) {
+        if (msg.length() > 18) {
+        		System.out.println("Warning: print() requires a String with 15 or fewer characters."); 
+        }
+    		try { 	// Build http request
+            StringBuilder resultUrl = new StringBuilder(baseUrl);
+            String printUrl = (resultUrl.append("out/")
+                    .append("print/")
+                    .append(msg + "/")
+                    .append(deviceInstance)).toString();
+            if (deviceInstance == "") {
+                printUrl = printUrl.substring(0, printUrl.length() - 1);
+            }
+            requestUrl = new URL(printUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            verifyOutputResponse();
+        } catch (IOException e) {
+        		System.out.println(outputError + e.getMessage());
+        }
+    }
+
+    /**
+     * setDisplay lets the LED Array display a pattern based on an array of booleans.
+     *
+     * @param booVals The list of booleans that the function takes in to set the LED Array.
+     *                True means on and False means off.
+     */
+    public void setDisplay(boolean[] booVals) {
+    	StringBuilder resultUrl = new StringBuilder(baseUrl);
+        int ledLen = booVals.length;
+        
+        if (ledLen != 25) {
+        		System.out.println("Warning: setDisplay() requires a boolean array of length 25.");
+        }
+    	try {	// Create http request
+            resultUrl = resultUrl.append("out/")
+                    .append("symbol/");
+            if (deviceInstance != "") {
+                resultUrl = resultUrl.append(deviceInstance + "/");
+            }
+
+            for (int i = 0; i < ledLen; i++) {
+                resultUrl = resultUrl.append(String.valueOf(booVals[i]) + "/");
+            }
+
+            String symbolUrl = resultUrl.toString();
+            symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
+
+            requestUrl = new URL(symbolUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            verifyOutputResponse();
+        } catch (IOException e) {
+        		System.out.println(outputError + e.getMessage());
+        }
+    }
+
+   
+    /**
+     * getAccelerationInDirs returns acceleration value in a specified direction.
+     *
+     * @param dir The direction of which the acceleration will be returned.
+     */
+    private double getAccelerationInDirs(String dir) {
+        try {
+            double response;
+            StringBuilder resultUrl = new StringBuilder(baseUrl);
+            String acclUrl = (resultUrl.append("in/")
+                    .append("Accelerometer/")
+                    .append(dir + "/")
+                    .append(deviceInstance)).toString();
+
+            if (deviceInstance == "") {
+                acclUrl = acclUrl.substring(0, acclUrl.length() - 1);
+            }
+
+            requestUrl = new URL(acclUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            response = Double.parseDouble(verifyResponse());
+            return response;
+        } catch (IOException e) {
+        		System.out.println(inputError + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * getMagnetometerValInDirs returns magnetometer value in a specified direction.
+     *
+     * @param dir The direction of which the magnetometer value will be returned.
+     */
+    private double getMagnetometerValInDirs(String dir) {
+        try {
+            double response;
+            StringBuilder resultUrl = new StringBuilder(baseUrl);
+            String magUrl = (resultUrl.append("in/")
+                    .append("Magnetometer/")
+                    .append(dir + "/")
+                    .append(deviceInstance)).toString();
+
+            if (deviceInstance == "") {
+                magUrl = magUrl.substring(0, magUrl.length() - 1);
+            }
+
+            requestUrl = new URL(magUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            response = Double.parseDouble(verifyResponse());
+            return response;
+        } catch (IOException e) {
+            System.out.println(inputError + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * getAcceleration returns accelerations in 3 directions (X,Y,Z) in m/s^2.
+     *
+     * @return the accelerations in 3 directions (X,Y,Z) in m/s^2.
+     */
+    public double[] getAcceleration() {
+        double[] accelerations = new double[3];
+        double resX = getAccelerationInDirs("X");
+        double resY = getAccelerationInDirs("Y");
+        double resZ = getAccelerationInDirs("Z");
+        accelerations[0] = resX;
+        accelerations[1] = resY;
+        accelerations[2] = resZ;
+        return accelerations;
+    }
+
+    /**
+     * getMagnetometer returns magnetometer values in 3 directions (X,Y,Z) in microT.
+     *
+     * @return the magnetometer values in 3 directions (X,Y,Z) in microT.
+     */
+    public double[] getMagnetometer() {
+        double[] magnetometerVals = new double[3];
+        double resX = getMagnetometerValInDirs("X");
+        double resY = getMagnetometerValInDirs("Y");
+        double resZ = getMagnetometerValInDirs("Z");
+        magnetometerVals[0] = resX;
+        magnetometerVals[1] = resY;
+        magnetometerVals[2] = resZ;
+        return magnetometerVals;
+    }
+
+    /**
+     * getCompass returns the direction in degrees from north.
+     *
+     * @return the direction in degrees. (Range: 0-360)
+     */
+    public int getCompass() {
+        try {
+            int response;
+            StringBuilder resultUrl = new StringBuilder(baseUrl);
+            String compasslUrl = (resultUrl.append("in/")
+                    .append("Compass/")
+                    .append(deviceInstance)).toString();
+
+            if (deviceInstance == "") {
+                compasslUrl = compasslUrl.substring(0, compasslUrl.length() - 1);
+            }
+
+            requestUrl = new URL(compasslUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            response = (int) Double.parseDouble(verifyResponse());
+            return response;
+        } catch (IOException e) {
+        		System.out.println(inputError + e.getMessage());
+            return -1;
+        }
+    }
+
+    /**
+     * getButton() takes in a button and checks whether it is pressed.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     *
+     * @param button the button that will be checked whether is it pressed or not. (Range: "A", "B")
+     * @return true if the button is pressed and false otherwise.
+     */
+    public boolean getButton(String button) {
+        if (!(button.equals("A") || button.equals("B"))) {
+            System.out.println("Error: Please choose button A or B");
+            return false;
+        }
+        try {
+            String response;
+            StringBuilder resultUrl = new StringBuilder(baseUrl);
+            String buttonUrl = (resultUrl.append("in/")
+                    .append("button/")
+                    .append(button + "/")
+                    .append(deviceInstance)).toString();
+
+            if (deviceInstance == "") {
+                buttonUrl = buttonUrl.substring(0, buttonUrl.length() - 1);
+            }
+
+            requestUrl = new URL(buttonUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            response = verifyResponse();
+            return (response.equals("true"));	
+        } catch (IOException e) {
+        		System.out.println(inputError + e.getMessage());
+            return false;
+        }
+    }
+
+
+    /**
+     * getOrientationBoolean checks whether the device currently being held to a specific orientation or shaken.
+     *
+     * @param orientation The orientation that will be checked.
+     * @return "true" if the device is held to the orientation and false otherwise.
+     */
+    private boolean getOrientationBoolean(String orientation) {
+        try {
+            boolean response;
+            StringBuilder resultUrl = new StringBuilder(baseUrl);
+            String orientationUrl = (resultUrl.append("in/")
+                    .append("orientation/")
+                    .append(orientation + "/")
+                    .append(deviceInstance)).toString();
+
+            if (deviceInstance == "") {
+                orientationUrl = orientationUrl.substring(0, orientationUrl.length() - 1);
+            }
+
+            requestUrl = new URL(orientationUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            response = Boolean.parseBoolean(verifyResponse());
+            return response;
+        } catch (IOException e) {
+        		System.out.println(inputError + e.getMessage());
+            return false;
+        }
+
+    }
+
+    /**
+     * getOrientation() provides information about the device's current orientation.
+     *
+     * @return the orientation of the device. (Range: Screen up, Screen down, Tilt left, Tilt right, Logo up, Logo down, Shake)
+     */
+    public String getOrientation() {
+        boolean screenUp = getOrientationBoolean(SCREEN_UP);
+        boolean screenDown = getOrientationBoolean(SCREEN_DOWN);
+        boolean tiltLeft = getOrientationBoolean(TILT_LEFT);
+        boolean tiltRight = getOrientationBoolean(TILT_RIGHT);
+        boolean logoUp = getOrientationBoolean(LOGO_UP);
+        boolean logoDown = getOrientationBoolean(LOGO_DOWN);
+        boolean shake = getOrientationBoolean(SHAKE);
+        if (shake) return SHAKE;
+        else if (screenUp) return "Screen up";
+        else if (screenDown) return "Screen down";
+        else if (tiltLeft) return "Tilt left";
+        else if (tiltRight) return "Tilt right";
+        else if (logoUp) return "Logo up";
+        else if (logoDown) return "Logo down";
+        return "";
+    }
+
+    /**
+     * disconnect disconnects the library from the connector.
+     */
+    public void disconnect() {
+        if (connection != null) {
+            connection.disconnect();
+            connection = null;
+        }
+    }
+}
