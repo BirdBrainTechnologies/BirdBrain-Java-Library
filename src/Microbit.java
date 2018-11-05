@@ -31,6 +31,8 @@ public class Microbit {
 
     private String outputError = "Error: Could not set micro:bit display: ";
 	private String inputError = "Error: Could not read micro:bit sensor: ";
+	
+	private boolean[] displayStatus = new boolean[25];
     
     /**
      * verifyOutputResponse checks whether the HTTP request response is valid or not.
@@ -102,6 +104,7 @@ public class Microbit {
      */
     public Microbit() {
         deviceInstance = "A";
+        for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
 
     /**
@@ -116,6 +119,7 @@ public class Microbit {
         } else {
         	deviceInstance = device;
         }
+    	for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
 
     
@@ -134,9 +138,7 @@ public class Microbit {
                     .append("print/")
                     .append(msg + "/")
                     .append(deviceInstance)).toString();
-            if (deviceInstance == "") {
-                printUrl = printUrl.substring(0, printUrl.length() - 1);
-            }
+            
             requestUrl = new URL(printUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -149,30 +151,54 @@ public class Microbit {
     }
 
     /**
-     * setDisplay lets the LED Array display a pattern based on an array of booleans.
+     * setDisplay lets the LED Array display a pattern based on an array of 1s and 0s.
      *
-     * @param booVals The list of booleans that the function takes in to set the LED Array.
-     *                True means on and False means off.
+     * @param ledValues The list of integers that the function takes in to set the LED Array.
+     *                1 means on and 0 means off.
      */
-    public void setDisplay(boolean[] booVals) {
+    public void setDisplay(int[] ledValues) {
     	StringBuilder resultUrl = new StringBuilder(baseUrl);
-        int ledLen = booVals.length;
+        int ledLen = ledValues.length;
+        
+        /* For the http request, we need to convert the 0s and 1s to boolean values. We can do this while
+         * also ensuring that the user only used 0 and 1.
+         */
+        //boolean[] convertedArray = new boolean[ledLen];
+        boolean allZeroOrOne = true;
+        
         
         if (ledLen != 25) {
-        		System.out.println("Warning: setDisplay() requires a boolean array of length 25.");
-        }
+        	System.out.println("Error: setDisplay() requires a int array of length 25.");
+        	return;
+        }         
     	try {	// Create http request
+    	
+    		/* For the http request, we need to convert the 0s and 1s to boolean values. We can do this while
+             * also ensuring that the user only used 0 and 1.
+             */
+    		for (int i = 0; i < ledLen; i++){
+                if (ledValues[i] == 1)
+                	displayStatus[i] = true;
+                else if (ledValues[i] == 0)
+                	displayStatus[i] = false;
+                else {	// convert all values are aren't 0 or 1 to true
+                	allZeroOrOne = false;
+                	displayStatus[i] = true;
+                }
+            }      
+    	
+    		if (!allZeroOrOne) {
+            	System.out.println("Warning: setDisplay() requires an array of 1s and 0s.");
+            }
+    		
             resultUrl = resultUrl.append("out/")
-                    .append("symbol/");
-            if (deviceInstance != "") {
-                resultUrl = resultUrl.append(deviceInstance + "/");
-            }
-
+                    .append("symbol/").append(deviceInstance.toString()+"/");
+          
             for (int i = 0; i < ledLen; i++) {
-                resultUrl = resultUrl.append(String.valueOf(booVals[i]) + "/");
+                resultUrl = resultUrl.append(String.valueOf(displayStatus[i]) + "/");
             }
-
-            String symbolUrl = resultUrl.toString();
+           
+            String symbolUrl = resultUrl.append(deviceInstance).toString();
             symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
 
             requestUrl = new URL(symbolUrl);
@@ -185,7 +211,57 @@ public class Microbit {
         		System.out.println(outputError + e.getMessage());
         }
     }
+    
+    /* This function turns on or off a single LED on the micro:bit LED array. 
+     * 
+     * @param x The column of the LED (1-5)
+     * @param y The row of the LED (1-5)
+     * @param value The value of the LED (0 for off, 1 for on)
+     * */
+    public void setPoint(int row, int column, int value) {
+    	
+    	StringBuilder resultUrl = new StringBuilder(baseUrl);
+    	
+    	if (!(row >= 1 && row <= 5) || !(column >= 1 && column <= 5)) {
+    		System.out.println("Warning: Please choose x and y values between 1 and 5.");
+            row = Math.min(5,Math.max(1,row));
+            column = Math.min(5,Math.max(1,column));
+    	}
+    	try {	// Create http request
+        	
+    		// Find the position of this led in displayStatus
+    		int position = (row - 1)*5 + (column-1);
+    		/* For the http request, we need to convert the 0 or 1 to a boolean. We can do this warning if the user didn't use 0 or 1 for the value
+             */
+    		if (value == 1)
+    			displayStatus[position] = true;
+    		else if (value == 0)
+    			displayStatus[position] = false;
+    		else {		// values that aren't 0 will be true.
+    			displayStatus[position] = true;
+    			System.out.println("Warning: Please choose an LED value of 0 or 1.");
+    		}
+    		
+            resultUrl = resultUrl.append("out/")
+                    .append("symbol/").append(deviceInstance.toString()+"/");
+          
+            for (int i = 0; i < displayStatus.length; i++) {
+                resultUrl = resultUrl.append(String.valueOf(displayStatus[i]) + "/");
+            }
+           
+            String symbolUrl = resultUrl.append(deviceInstance).toString();
+            symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
 
+            requestUrl = new URL(symbolUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            verifyOutputResponse();
+        } catch (IOException e) {
+        		System.out.println(outputError + e.getMessage());
+        }
+    }
    
     /**
      * getAccelerationInDirs returns acceleration value in a specified direction.
@@ -201,9 +277,6 @@ public class Microbit {
                     .append(dir + "/")
                     .append(deviceInstance)).toString();
 
-            if (deviceInstance == "") {
-                acclUrl = acclUrl.substring(0, acclUrl.length() - 1);
-            }
 
             requestUrl = new URL(acclUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
@@ -231,10 +304,6 @@ public class Microbit {
                     .append("Magnetometer/")
                     .append(dir + "/")
                     .append(deviceInstance)).toString();
-
-            if (deviceInstance == "") {
-                magUrl = magUrl.substring(0, magUrl.length() - 1);
-            }
 
             requestUrl = new URL(magUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
@@ -294,10 +363,6 @@ public class Microbit {
                     .append("Compass/")
                     .append(deviceInstance)).toString();
 
-            if (deviceInstance == "") {
-                compasslUrl = compasslUrl.substring(0, compasslUrl.length() - 1);
-            }
-
             requestUrl = new URL(compasslUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -330,11 +395,7 @@ public class Microbit {
                     .append("button/")
                     .append(button + "/")
                     .append(deviceInstance)).toString();
-
-            if (deviceInstance == "") {
-                buttonUrl = buttonUrl.substring(0, buttonUrl.length() - 1);
-            }
-
+         
             requestUrl = new URL(buttonUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -363,11 +424,7 @@ public class Microbit {
                     .append("orientation/")
                     .append(orientation + "/")
                     .append(deviceInstance)).toString();
-
-            if (deviceInstance == "") {
-                orientationUrl = orientationUrl.substring(0, orientationUrl.length() - 1);
-            }
-
+          
             requestUrl = new URL(orientationUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -412,6 +469,31 @@ public class Microbit {
         if (connection != null) {
             connection.disconnect();
             connection = null;
+        }
+    }
+    /* stopAll() turns off all the outputs. */
+    public void stopAll() {
+    	try { 	
+    		
+    		// Build http request to turn off all the outputs
+            StringBuilder resultUrl = new StringBuilder(baseUrl);
+            String stopUrl = (resultUrl.append("out/")
+                    .append("stopall/")
+                    .append(deviceInstance)).toString();
+            
+            requestUrl = new URL(stopUrl);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            verifyOutputResponse();
+            
+            // Reset the status of the display
+            for (int i = 0; i < displayStatus.length; i++) {
+    			displayStatus[i] = false;
+    		}
+        } catch (IOException e) {
+        		System.out.println(outputError + e.getMessage());
         }
     }
 }

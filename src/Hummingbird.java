@@ -62,9 +62,7 @@ public class Hummingbird extends Microbit {
                     .append(Integer.toString(port) + "/")
                     .append(Integer.toString(degrees) + "/")
                     .append(deviceInstance)).toString();
-            if (deviceInstance == "") {
-                servoUrl = servoUrl.substring(0, servoUrl.length() - 1);
-            }
+           
             requestUrl = new URL(servoUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -104,9 +102,7 @@ public class Hummingbird extends Microbit {
                     .append(Integer.toString(port) + "/")
                     .append(Integer.toString(speed) + "/")
                     .append(deviceInstance)).toString();
-            if (deviceInstance == "") {
-                rotationUrl = rotationUrl.substring(0, rotationUrl.length() - 1);
-            }
+            
             requestUrl = new URL(rotationUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -141,9 +137,7 @@ public class Hummingbird extends Microbit {
                     .append(Integer.toString(port) + "/")
                     .append(Integer.toString(intensity) + "/")
                     .append(deviceInstance)).toString();
-            if (deviceInstance == "") {
-                ledUrl = ledUrl.substring(0, ledUrl.length() - 1);
-            }
+            
             requestUrl = new URL(ledUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -188,9 +182,7 @@ public class Hummingbird extends Microbit {
                     .append(Integer.toString(greenIntensity) + "/")
                     .append(Integer.toString(blueIntensity) + "/")
                     .append(deviceInstance)).toString();
-            if (deviceInstance == "") {
-                triLedUrl = triLedUrl.substring(0, triLedUrl.length() - 1);
-            }
+           
             requestUrl = new URL(triLedUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -215,16 +207,12 @@ public class Hummingbird extends Microbit {
     	System.out.println(beats);
     	try {	// Create and send the http request
     		beats = beats * 1000;
-    		System.out.println(beats);
     		StringBuilder resultUrl = new StringBuilder(baseUrl);
             String buzzerUrl = (resultUrl.append("out/")
                     .append("playnote/")
                     .append(Integer.toString(note) + "/")
                     .append(Integer.toString((int)beats) + "/")
                     .append(deviceInstance)).toString();
-            /*if (deviceInstance == "") {
-                ledUrl = ledUrl.substring(0, ledUrl.length() - 1);
-            }*/
             requestUrl = new URL(buzzerUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
@@ -249,10 +237,7 @@ public class Hummingbird extends Microbit {
                     .append("sensor/")
                     .append(Integer.toString(port) + "/")
                     .append(deviceInstance)).toString();
-
-            if (deviceInstance == "") {
-                sensorUrl = sensorUrl.substring(0, sensorUrl.length() - 1);
-            }
+      
 
             requestUrl = new URL(sensorUrl);
             connection = (HttpURLConnection) requestUrl.openConnection();
@@ -326,6 +311,21 @@ public class Hummingbird extends Microbit {
         int sensorResponse = getSensorValue(port);
         int processedResponse = (int) (sensorResponse * 100.0 / 230.0);
         return processedResponse >= 100 ? 100 : processedResponse;
+    }
+    
+    /**
+     * getDial returns dial value at a given port after processing the raw sensor value retrieved.
+     * The function shows a warning dialog if the inputs are not in the specified range.
+     *
+     * @param port The port that the dial is attached to. (Range: 1-4)
+     */
+    public double getSensorVoltage(int port) {
+        if (!(port >= 1 && port <= 3)) {
+            System.out.println("Error: Please choose a port value between 1 and 3");
+            return -1;
+        }
+        int sensorResponse = getSensorValue(port);
+        return (sensorResponse * 3.3 / 255);
     }
 
 }
