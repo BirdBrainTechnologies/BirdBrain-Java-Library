@@ -319,7 +319,7 @@ public class Hummingbird extends Microbit {
      *
      * @param port The port that the dial is attached to. (Range: 1-4)
      */
-    public double getSensorVoltage(int port) {
+    public double getVoltage(int port) {
         if (!(port >= 1 && port <= 3)) {
             System.out.println("Error: Please choose a port value between 1 and 3");
             return -1;

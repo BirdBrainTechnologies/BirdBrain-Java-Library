@@ -129,10 +129,13 @@ public class Microbit {
      * @param msg The message that will be displayed on the LED Array.
      */
     public void print(String msg) {
-        if (msg.length() > 18) {
+        if (msg.length() > 15) {
         		System.out.println("Warning: print() requires a String with 15 or fewer characters."); 
         }
     		try { 	// Build http request
+    		
+    		// Get rid of spaces
+    		msg = msg.replace(" ", "%20");
             StringBuilder resultUrl = new StringBuilder(baseUrl);
             String printUrl = (resultUrl.append("out/")
                     .append("print/")
@@ -168,7 +171,7 @@ public class Microbit {
         
         
         if (ledLen != 25) {
-        	System.out.println("Error: setDisplay() requires a int array of length 25.");
+        	System.out.println("Error: setDisplay() requires a int array of length 25");
         	return;
         }         
     	try {	// Create http request
@@ -188,7 +191,7 @@ public class Microbit {
             }      
     	
     		if (!allZeroOrOne) {
-            	System.out.println("Warning: setDisplay() requires an array of 1s and 0s.");
+            	System.out.println("Warning: setDisplay() requires an array of 1s and 0s");
             }
     		
             resultUrl = resultUrl.append("out/")
@@ -223,7 +226,7 @@ public class Microbit {
     	StringBuilder resultUrl = new StringBuilder(baseUrl);
     	
     	if (!(row >= 1 && row <= 5) || !(column >= 1 && column <= 5)) {
-    		System.out.println("Warning: Please choose x and y values between 1 and 5.");
+    		System.out.println("Warning: Please choose row and column values between 1 and 5");
             row = Math.min(5,Math.max(1,row));
             column = Math.min(5,Math.max(1,column));
     	}
@@ -239,7 +242,7 @@ public class Microbit {
     			displayStatus[position] = false;
     		else {		// values that aren't 0 will be true.
     			displayStatus[position] = true;
-    			System.out.println("Warning: Please choose an LED value of 0 or 1.");
+    			System.out.println("Warning: Please choose an LED value of 0 or 1");
     		}
     		
             resultUrl = resultUrl.append("out/")
@@ -439,10 +442,17 @@ public class Microbit {
 
     }
 
+    /* isShaking() tells you whether the micro:bit is being shaken or has been shaken recently. 
+     * 
+     * @return a boolean value telling you the shake state
+     * */
+    public boolean isShaking() {
+    	return getOrientationBoolean(SHAKE);
+    }
     /**
      * getOrientation() provides information about the device's current orientation.
      *
-     * @return the orientation of the device. (Range: Screen up, Screen down, Tilt left, Tilt right, Logo up, Logo down, Shake)
+     * @return the orientation of the device. (Range: Screen up, Screen down, Tilt left, Tilt right, Logo up, Logo down)
      */
     public String getOrientation() {
         boolean screenUp = getOrientationBoolean(SCREEN_UP);
@@ -451,9 +461,8 @@ public class Microbit {
         boolean tiltRight = getOrientationBoolean(TILT_RIGHT);
         boolean logoUp = getOrientationBoolean(LOGO_UP);
         boolean logoDown = getOrientationBoolean(LOGO_DOWN);
-        boolean shake = getOrientationBoolean(SHAKE);
-        if (shake) return SHAKE;
-        else if (screenUp) return "Screen up";
+        
+        if (screenUp) return "Screen up";
         else if (screenDown) return "Screen down";
         else if (tiltLeft) return "Tilt left";
         else if (tiltRight) return "Tilt right";
