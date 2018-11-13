@@ -127,7 +127,6 @@ public class Hummingbird extends Microbit {
         } else if (!(intensity >= 0 && intensity <= 180)) {	// Correct the intensity if it is out of bounds
             System.out.println("Warning: Please choose an intensity between 0 and 100");
             intensity = Math.min(100,Math.max(0,intensity));
-            System.out.println(intensity);
         }
         try {	// Create and send the http request
             intensity = (int) (intensity * 255.0 / 100.0);

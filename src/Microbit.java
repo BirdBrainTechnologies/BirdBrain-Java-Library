@@ -132,8 +132,20 @@ public class Microbit {
         if (msg.length() > 15) {
         		System.out.println("Warning: print() requires a String with 15 or fewer characters."); 
         }
-    		try { 	// Build http request
+        // Warn the user if there are any special characters. Note that we don't use isCharacterOrDigit() because we can only display English characters
+        char letter;
+        for (int i = 0; i < msg.length(); i++) {
+        	letter = msg.charAt(i);
+        	if (!(((letter >= 'a') && (letter <= 'z')) || ((letter >= 'A') && (letter <= 'Z')) || ((letter >= '0') && (letter <= '9')) || (letter == ' '))) {
+        		System.out.println("Warning: Many special characters cannot be printed on the LED display");
+        	}
+        }
+    	try { 	// Build http request
     		
+    		// Empty out display status
+    		for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
+
+    			
     		// Get rid of spaces
     		msg = msg.replace(" ", "%20");
             StringBuilder resultUrl = new StringBuilder(baseUrl);
@@ -468,7 +480,7 @@ public class Microbit {
         else if (tiltRight) return "Tilt right";
         else if (logoUp) return "Logo up";
         else if (logoDown) return "Logo down";
-        return "";
+        return "In between";
     }
 
     /**
