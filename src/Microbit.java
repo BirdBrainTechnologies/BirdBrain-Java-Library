@@ -109,6 +109,61 @@ public class Microbit {
     	} else
     		return parameter;
     }
+    
+    /* This function checks whether an input parameter is within the given bounds. If not, it prints
+	   a warning and returns a value of the input parameter that is within the required range.
+	   Otherwise, it just returns the initial value. */
+	protected double clampParameterToBounds(double parameter, double inputMin, double inputMax) {
+	 	if ((parameter < inputMin) || (parameter > inputMax)) {
+	 		System.out.println("Warning: Please choose a parameter between " + inputMin + " and " + inputMax);
+	 		return Math.max(inputMin, Math.min(inputMax,  parameter));
+	 	} else
+	 		return parameter;
+	 }
+    
+    protected void httpRequestOut(String URLRequest) {
+    	try {
+            requestUrl = new URL(URLRequest);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+            verifyOutputResponse();
+        } catch (IOException e) {
+        		System.out.println(outputError + e.getMessage());
+        }
+    }
+    
+    protected double httpRequestInDouble(String URLRequest) {
+    	try {
+            double response;
+            requestUrl = new URL(URLRequest);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            response = Double.parseDouble(verifyResponse());
+            return response;
+        } catch (IOException e) {
+            System.out.println(inputError + e.getMessage());
+            return -1;
+        }
+    }
+    
+    protected boolean httpRequestInBoolean(String URLRequest) {
+    	try {
+            String response;
+            requestUrl = new URL(URLRequest);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+
+            response = verifyResponse();
+            return (response.equals("true"));
+        } catch (IOException e) {
+            System.out.println(inputError + e.getMessage());
+            return false;
+        }
+    }
 
     /**
      * default constructor for the library. Construct the baseUrl and set the default device to be A
@@ -151,29 +206,17 @@ public class Microbit {
         		System.out.println("Warning: Many special characters cannot be printed on the LED display");
         	}
         }
-    	try { 	// Build http request
-    		
-    		// Empty out display status
-    		for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
-
-    			
-    		// Get rid of spaces
-    		message = message.replace(" ", "%20");
-            StringBuilder resultUrl = new StringBuilder(baseUrl);
-            String printUrl = (resultUrl.append("out/")
+    	for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
+ 			
+    	// Get rid of spaces
+    	message = message.replace(" ", "%20");
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String printUrl = (resultUrl.append("out/")
                     .append("print/")
                     .append(message + "/")
                     .append(deviceInstance)).toString();
+         httpRequestOut(printUrl);
             
-            requestUrl = new URL(printUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            verifyOutputResponse();
-        } catch (IOException e) {
-        		System.out.println(outputError + e.getMessage());
-        }
     }
 
     /**
@@ -194,38 +237,29 @@ public class Microbit {
         	System.out.println("Error: setDisplay() requires a int array of length 25");
         	return;
         }         
-    	try {	// Create http request
-    	
-    		/* For the http request, we need to convert the 0s and 1s to boolean values. We can do this while
-             * also ensuring that the user only used 0 and 1.
-             */
-    		for (int i = 0; i < ledLen; i++){
-                if (ledValues[i] == 1)
-                	displayStatus[i] = true;
-                else 
-                	displayStatus[i] = false;
+        
+        /* For the http request, we need to convert the 0s and 1s to boolean values. We can do this while
+         * also ensuring that the user only used 0 and 1.
+         */
+    	for (int i = 0; i < ledLen; i++){
+    		if (ledValues[i] == 1)
+                displayStatus[i] = true;
+            else 
+                displayStatus[i] = false;
                 
-            }      
+        }      
     		
-            resultUrl = resultUrl.append("out/")
+        resultUrl = resultUrl.append("out/")
                     .append("symbol/").append(deviceInstance.toString()+"/");
           
-            for (int i = 0; i < ledLen; i++) {
-                resultUrl = resultUrl.append(String.valueOf(displayStatus[i]) + "/");
-            }
-           
-            String symbolUrl = resultUrl.append(deviceInstance).toString();
-            symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
-
-            requestUrl = new URL(symbolUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            verifyOutputResponse();
-        } catch (IOException e) {
-        		System.out.println(outputError + e.getMessage());
+        for (int i = 0; i < ledLen; i++) {
+            resultUrl = resultUrl.append(String.valueOf(displayStatus[i]) + "/");
         }
+           
+        String symbolUrl = resultUrl.append(deviceInstance).toString();
+        symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
+        
+        httpRequestOut(symbolUrl);
     }
     
     /* This function turns on or off a single LED on the micro:bit LED array. 
@@ -241,37 +275,27 @@ public class Microbit {
     	row = clampParameterToBounds(row, 1, 5);
     	column = clampParameterToBounds(column, 1, 5);
     	value = clampParameterToBounds(value, 0, 1);
-    	
-    	try {	// Create http request
-        	
-    		// Find the position of this led in displayStatus
-    		int position = (row - 1)*5 + (column-1);
-    		/* For the http request, we need to convert the 0 or 1 to a boolean. We can do this warning if the user didn't use 0 or 1 for the value
-             */
-    		if (value == 1)
-    			displayStatus[position] = true;
-    		else 
-    			displayStatus[position] = false;
     		
-            resultUrl = resultUrl.append("out/")
-                    .append("symbol/").append(deviceInstance.toString()+"/");
-          
-            for (int i = 0; i < displayStatus.length; i++) {
-                resultUrl = resultUrl.append(String.valueOf(displayStatus[i]) + "/");
-            }
-           
-            String symbolUrl = resultUrl.append(deviceInstance).toString();
-            symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
-
-            requestUrl = new URL(symbolUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            verifyOutputResponse();
-        } catch (IOException e) {
-        		System.out.println(outputError + e.getMessage());
+    	// Find the position of this led in displayStatus
+		int position = (row - 1)*5 + (column-1);
+		/* For the http request, we need to convert the 0 or 1 to a boolean. We can do this warning if the user didn't use 0 or 1 for the value
+         */
+		if (value == 1)
+			displayStatus[position] = true;
+		else 
+			displayStatus[position] = false;
+		
+        resultUrl = resultUrl.append("out/")
+                .append("symbol/").append(deviceInstance.toString()+"/");
+      
+        for (int i = 0; i < displayStatus.length; i++) {
+            resultUrl = resultUrl.append(String.valueOf(displayStatus[i]) + "/");
         }
+       
+        String symbolUrl = resultUrl.append(deviceInstance).toString();
+        symbolUrl = symbolUrl.substring(0, symbolUrl.length() - 1);
+
+        httpRequestOut(symbolUrl);
     }
    
     /**
@@ -280,26 +304,16 @@ public class Microbit {
      * @param dir The direction of which the acceleration will be returned.
      */
     private double getAccelerationInDirs(String dir) {
-        try {
-            double response;
-            StringBuilder resultUrl = new StringBuilder(baseUrl);
-            String acclUrl = (resultUrl.append("in/")
-                    .append("Accelerometer/")
-                    .append(dir + "/")
-                    .append(deviceInstance)).toString();
+        
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String acclUrl = (resultUrl.append("in/")
+                .append("Accelerometer/")
+                .append(dir + "/")
+                .append(deviceInstance)).toString();
 
-
-            requestUrl = new URL(acclUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            response = Double.parseDouble(verifyResponse());
-            return response;
-        } catch (IOException e) {
-        		System.out.println(inputError + e.getMessage());
-            return -1;
-        }
+        return httpRequestInDouble(acclUrl);
+          
+       
     }
 
     /**
@@ -308,25 +322,13 @@ public class Microbit {
      * @param dir The direction of which the magnetometer value will be returned.
      */
     private double getMagnetometerValInDirs(String dir) {
-        try {
-            double response;
-            StringBuilder resultUrl = new StringBuilder(baseUrl);
-            String magUrl = (resultUrl.append("in/")
-                    .append("Magnetometer/")
-                    .append(dir + "/")
-                    .append(deviceInstance)).toString();
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String magUrl = (resultUrl.append("in/")
+                .append("Magnetometer/")
+                .append(dir + "/")
+                .append(deviceInstance)).toString();
 
-            requestUrl = new URL(magUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            response = Double.parseDouble(verifyResponse());
-            return response;
-        } catch (IOException e) {
-            System.out.println(inputError + e.getMessage());
-            return -1;
-        }
+        return httpRequestInDouble(magUrl);
     }
 
     /**
@@ -367,24 +369,14 @@ public class Microbit {
      * @return the direction in degrees. (Range: 0-360)
      */
     public int getCompass() {
-        try {
-            int response;
-            StringBuilder resultUrl = new StringBuilder(baseUrl);
-            String compasslUrl = (resultUrl.append("in/")
-                    .append("Compass/")
-                    .append(deviceInstance)).toString();
+        
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String compassUrl = (resultUrl.append("in/")
+                .append("Compass/")
+                .append(deviceInstance)).toString();
 
-            requestUrl = new URL(compasslUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            response = (int) Double.parseDouble(verifyResponse());
-            return response;
-        } catch (IOException e) {
-        		System.out.println(inputError + e.getMessage());
-            return -1;
-        }
+        return (int) httpRequestInDouble(compassUrl);
+       
     }
 
     /**
@@ -399,25 +391,15 @@ public class Microbit {
             System.out.println("Error: Please choose button A or B");
             return false;
         }
-        try {
-            String response;
-            StringBuilder resultUrl = new StringBuilder(baseUrl);
-            String buttonUrl = (resultUrl.append("in/")
-                    .append("button/")
-                    .append(button + "/")
-                    .append(deviceInstance)).toString();
-         
-            requestUrl = new URL(buttonUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            response = verifyResponse();
-            return (response.equals("true"));	
-        } catch (IOException e) {
-        		System.out.println(inputError + e.getMessage());
-            return false;
-        }
+        
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String buttonUrl = (resultUrl.append("in/")
+                .append("button/")
+                .append(button + "/")
+                .append(deviceInstance)).toString();
+        
+        return httpRequestInBoolean(buttonUrl);
+          
     }
 
 
@@ -428,26 +410,15 @@ public class Microbit {
      * @return "true" if the device is held to the orientation and false otherwise.
      */
     private boolean getOrientationBoolean(String orientation) {
-        try {
-            boolean response;
-            StringBuilder resultUrl = new StringBuilder(baseUrl);
-            String orientationUrl = (resultUrl.append("in/")
-                    .append("orientation/")
-                    .append(orientation + "/")
-                    .append(deviceInstance)).toString();
-          
-            requestUrl = new URL(orientationUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            response = Boolean.parseBoolean(verifyResponse());
-            return response;
-        } catch (IOException e) {
-        		System.out.println(inputError + e.getMessage());
-            return false;
-        }
-
+    	
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String orientationUrl = (resultUrl.append("in/")
+                .append("orientation/")
+                .append(orientation + "/")
+                .append(deviceInstance)).toString();
+      
+        return httpRequestInBoolean(orientationUrl);  
+        
     }
 
     /* isShaking() tells you whether the micro:bit is being shaken or has been shaken recently. 
@@ -480,7 +451,7 @@ public class Microbit {
     }
 
     /* Pauses the program for a time in seconds. */
-    public void sleep(double numSeconds) {
+    public void pause(double numSeconds) {
     	
     	double milliSeconds = 1000*numSeconds;
     	try {
@@ -501,27 +472,13 @@ public class Microbit {
     }
     /* stopAll() turns off all the outputs. */
     public void stopAll() {
-    	try { 	
-    		
-    		// Build http request to turn off all the outputs
-            StringBuilder resultUrl = new StringBuilder(baseUrl);
-            String stopUrl = (resultUrl.append("out/")
-                    .append("stopall/")
-                    .append(deviceInstance)).toString();
-            
-            requestUrl = new URL(stopUrl);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            verifyOutputResponse();
-            
-            // Reset the status of the display
-            for (int i = 0; i < displayStatus.length; i++) {
-    			displayStatus[i] = false;
-    		}
-        } catch (IOException e) {
-        		System.out.println(outputError + e.getMessage());
-        }
+    
+		// Build http request to turn off all the outputs
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String stopUrl = (resultUrl.append("out/")
+                .append("stopall/")
+                .append(deviceInstance)).toString();
+        
+        httpRequestOut(stopUrl);
     }
 }
