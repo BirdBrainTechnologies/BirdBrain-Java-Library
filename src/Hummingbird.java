@@ -24,6 +24,16 @@ public class Hummingbird extends Microbit {
           deviceInstance = "A";
     }
 
+    /* This function checks whether a port is within the given bounds. It returns a boolean value 
+	   that is either true or false and prints an error if necessary. */
+	protected boolean isPortValid(int port, int portMax) {
+		if ((port < 1) || (port > portMax)) {
+			System.out.println("Error: Please choose a port value between 1 and " + portMax);
+			return false;
+		}
+		else
+			return true;	
+	}
     /**
      * General constructor for the library. Set the device to be "A", "B", or "C".
      *

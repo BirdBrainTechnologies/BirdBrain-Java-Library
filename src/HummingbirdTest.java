@@ -1,11 +1,11 @@
 import java.util.Arrays;
 
-public class main {
+public class HummingbirdTest {
     public static void main(String[] args) {
         //boolean[] testDisplay = new boolean[25];
        // Hummingbird myBit = new Hummingbird("B");
         Microbit testM = new Microbit("A");
-        int patternArray[] = {1,0,0,0,0,1,1,1,1,1,0,0,2,0,0,1,1,1,1,1,0,0,0,0,0};       
+        int patternArray[] = {-1,0,0,0,0,1,1,1,1,1,0,0,2,0,0,1,1,1,1,1,0,0,0,0,0};       
         testM.setDisplay(patternArray);
         //testM.print("hel lo");
         //myBit.setPoint(1, 1, 1);
@@ -18,19 +18,12 @@ public class main {
         testHummingBit.setTriLED(2, 50, 50, 50);
 
         testHummingBit.print("0123");*/
-        testM.print("0 2#89");
-        try {
-            Thread.sleep(8000);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
-        testM.setPoint(5, -1, -1);
+        //testM.print("0 29");
+        testM.sleep(4);
+        
+        testM.setPoint(5, 1, 1);
         testM.setPoint(2, 3, 0);
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-        }
+        testM.sleep(4);
         
         //myBit.playNote(60, 0.5);
 

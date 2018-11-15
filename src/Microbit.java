@@ -98,6 +98,17 @@ public class Microbit {
             return "Not Connected";
         }
     }
+    
+    /* This function checks whether an input parameter is within the given bounds. If not, it prints
+	   a warning and returns a value of the input parameter that is within the required range.
+	   Otherwise, it just returns the initial value. */
+    protected int clampParameterToBounds(int parameter, int inputMin, int inputMax) {
+    	if ((parameter < inputMin) || (parameter > inputMax)) {
+    		System.out.println("Warning: Please choose a parameter between " + inputMin + " and " + inputMax);
+    		return Math.max(inputMin, Math.min(inputMax,  parameter));
+    	} else
+    		return parameter;
+    }
 
     /**
      * default constructor for the library. Construct the baseUrl and set the default device to be A
@@ -128,14 +139,14 @@ public class Microbit {
      *
      * @param msg The message that will be displayed on the LED Array.
      */
-    public void print(String msg) {
-        if (msg.length() > 15) {
+    public void print(String message) {
+        if (message.length() > 15) {
         		System.out.println("Warning: print() requires a String with 15 or fewer characters."); 
         }
         // Warn the user if there are any special characters. Note that we don't use isCharacterOrDigit() because we can only display English characters
         char letter;
-        for (int i = 0; i < msg.length(); i++) {
-        	letter = msg.charAt(i);
+        for (int i = 0; i < message.length(); i++) {
+        	letter = message.charAt(i);
         	if (!(((letter >= 'a') && (letter <= 'z')) || ((letter >= 'A') && (letter <= 'Z')) || ((letter >= '0') && (letter <= '9')) || (letter == ' '))) {
         		System.out.println("Warning: Many special characters cannot be printed on the LED display");
         	}
@@ -147,11 +158,11 @@ public class Microbit {
 
     			
     		// Get rid of spaces
-    		msg = msg.replace(" ", "%20");
+    		message = message.replace(" ", "%20");
             StringBuilder resultUrl = new StringBuilder(baseUrl);
             String printUrl = (resultUrl.append("out/")
                     .append("print/")
-                    .append(msg + "/")
+                    .append(message + "/")
                     .append(deviceInstance)).toString();
             
             requestUrl = new URL(printUrl);
@@ -175,12 +186,9 @@ public class Microbit {
     	StringBuilder resultUrl = new StringBuilder(baseUrl);
         int ledLen = ledValues.length;
         
-        /* For the http request, we need to convert the 0s and 1s to boolean values. We can do this while
-         * also ensuring that the user only used 0 and 1.
-         */
-        //boolean[] convertedArray = new boolean[ledLen];
-        boolean allZeroOrOne = true;
-        
+        for (int i = 0; i < ledLen; i++){
+        	ledValues[i] = clampParameterToBounds(ledValues[i],0,1);
+        }
         
         if (ledLen != 25) {
         	System.out.println("Error: setDisplay() requires a int array of length 25");
@@ -194,17 +202,10 @@ public class Microbit {
     		for (int i = 0; i < ledLen; i++){
                 if (ledValues[i] == 1)
                 	displayStatus[i] = true;
-                else if (ledValues[i] == 0)
+                else 
                 	displayStatus[i] = false;
-                else {	// convert all values are aren't 0 or 1 to true
-                	allZeroOrOne = false;
-                	displayStatus[i] = true;
-                }
+                
             }      
-    	
-    		if (!allZeroOrOne) {
-            	System.out.println("Warning: setDisplay() requires an array of 1s and 0s");
-            }
     		
             resultUrl = resultUrl.append("out/")
                     .append("symbol/").append(deviceInstance.toString()+"/");
@@ -237,11 +238,10 @@ public class Microbit {
     	
     	StringBuilder resultUrl = new StringBuilder(baseUrl);
     	
-    	if (!(row >= 1 && row <= 5) || !(column >= 1 && column <= 5)) {
-    		System.out.println("Warning: Please choose row and column values between 1 and 5");
-            row = Math.min(5,Math.max(1,row));
-            column = Math.min(5,Math.max(1,column));
-    	}
+    	row = clampParameterToBounds(row, 1, 5);
+    	column = clampParameterToBounds(column, 1, 5);
+    	value = clampParameterToBounds(value, 0, 1);
+    	
     	try {	// Create http request
         	
     		// Find the position of this led in displayStatus
@@ -250,12 +250,8 @@ public class Microbit {
              */
     		if (value == 1)
     			displayStatus[position] = true;
-    		else if (value == 0)
+    		else 
     			displayStatus[position] = false;
-    		else {		// values that aren't 0 will be true.
-    			displayStatus[position] = true;
-    			System.out.println("Warning: Please choose an LED value of 0 or 1");
-    		}
     		
             resultUrl = resultUrl.append("out/")
                     .append("symbol/").append(deviceInstance.toString()+"/");
@@ -483,6 +479,17 @@ public class Microbit {
         return "In between";
     }
 
+    /* Pauses the program for a time in seconds. */
+    public void sleep(double numSeconds) {
+    	
+    	double milliSeconds = 1000*numSeconds;
+    	try {
+            Thread.sleep(Math.round(milliSeconds));
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+        }
+    }
+    
     /**
      * disconnect disconnects the library from the connector.
      */
