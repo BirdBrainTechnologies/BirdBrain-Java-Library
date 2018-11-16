@@ -29,10 +29,10 @@ public class Microbit {
     private static final String LOGO_DOWN = "Logo%20Down";
     private static final String SHAKE = "Shake";
 
-    private String outputError = "Error: Could not set micro:bit display: ";
-	private String inputError = "Error: Could not read micro:bit sensor: ";
+    private String outputError = "Error: Could not set output on the device ";
+	private String inputError = "Error: Could not read sensor on the device ";
 	
-	private boolean[] displayStatus = new boolean[25];
+	protected boolean[] displayStatus = new boolean[25];
     
     /**
      * verifyOutputResponse checks whether the HTTP request response is valid or not.
@@ -99,6 +99,34 @@ public class Microbit {
         }
     }
     
+    /* This function tests a connection by attempting to read whether or not the micro:bit is shaking. 
+     * Return true if the connection is good and false otherwise. 
+     */
+    protected boolean isConnectionValid() {
+    	try {
+	    	 StringBuilder newURL = new StringBuilder(baseUrl);
+	         String testURL = (newURL.append("in/")
+	                 .append("orientation/")
+	                 .append(SHAKE + "/")
+	                 .append(deviceInstance)).toString();
+	    	
+	        requestUrl = new URL(testURL);
+	        connection = (HttpURLConnection) requestUrl.openConnection();
+	        connection.setRequestMethod("GET");
+	        connection.setDoOutput(true);
+	
+	        String stringResponse = verifyResponse();
+	        if (stringResponse.equals("Not Connected")) {
+	        	System.out.println("Error: Device " + deviceInstance + " is not connected");
+	        	return false;
+	        } else {
+	        	return true;
+	        }
+    	} catch (IOException e) {
+            System.out.println("Error: Device " + deviceInstance + " is not connected");
+            return false;
+        }
+    }
     /* This function checks whether an input parameter is within the given bounds. If not, it prints
 	   a warning and returns a value of the input parameter that is within the required range.
 	   Otherwise, it just returns the initial value. */
@@ -121,6 +149,8 @@ public class Microbit {
 	 		return parameter;
 	 }
     
+	/* This function sends http requests that set outputs (lights, motors, buzzer, 
+	 * etc.) on the micro:bit and Hummingbird. */
     protected void httpRequestOut(String URLRequest) {
     	try {
             requestUrl = new URL(URLRequest);
@@ -133,22 +163,31 @@ public class Microbit {
         }
     }
     
+    /* This function sends http requests that return a double response from a sensor. */
     protected double httpRequestInDouble(String URLRequest) {
     	try {
             double response;
+            String stringResponse;
             requestUrl = new URL(URLRequest);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
 
-            response = Double.parseDouble(verifyResponse());
-            return response;
+            stringResponse = verifyResponse();
+            if (stringResponse.equals("Not Connected")) {
+            	System.out.println("Error: The device is not connected");
+            	return -1;
+            } else {
+            	response = Double.parseDouble(stringResponse);
+            	return response;
+            }
         } catch (IOException e) {
             System.out.println(inputError + e.getMessage());
             return -1;
         }
     }
     
+    /* This function sends http requests that return a boolean response from a sensor. */
     protected boolean httpRequestInBoolean(String URLRequest) {
     	try {
             String response;
@@ -158,7 +197,10 @@ public class Microbit {
             connection.setDoOutput(true);
 
             response = verifyResponse();
-            return (response.equals("true"));
+            if (response.equals("Not Connected")) {
+            	System.out.println("Error: The device is not connected");
+            	return false;
+            } else return (response.equals("true"));
         } catch (IOException e) {
             System.out.println(inputError + e.getMessage());
             return false;
@@ -170,6 +212,7 @@ public class Microbit {
      */
     public Microbit() {
         deviceInstance = "A";
+        if (!isConnectionValid()) System.exit(0);
         for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
 
@@ -181,9 +224,10 @@ public class Microbit {
     public Microbit(String device) {
     	if (!((device == "A")||(device == "B")||(device == "C"))) {
         	System.out.println("Error: Device must be A, B, or C.");
-        	deviceInstance = "A";
+        	System.exit(0);
         } else {
         	deviceInstance = device;
+        	if (!isConnectionValid()) System.exit(0);
         }
     	for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
@@ -210,6 +254,8 @@ public class Microbit {
  			
     	// Get rid of spaces
     	message = message.replace(" ", "%20");
+    	
+    	// Build http request
         StringBuilder resultUrl = new StringBuilder(baseUrl);
         String printUrl = (resultUrl.append("out/")
                     .append("print/")
@@ -311,9 +357,7 @@ public class Microbit {
                 .append(dir + "/")
                 .append(deviceInstance)).toString();
 
-        return httpRequestInDouble(acclUrl);
-          
-       
+        return httpRequestInDouble(acclUrl);     
     }
 
     /**
@@ -421,7 +465,7 @@ public class Microbit {
         
     }
 
-    /* isShaking() tells you whether the micro:bit is being shaken or has been shaken recently. 
+    /* isShaking() tells you whether the micro:bit is being shaken. 
      * 
      * @return a boolean value telling you the shake state
      * */
@@ -462,7 +506,7 @@ public class Microbit {
     }
     
     /**
-     * disconnect disconnects the library from the connector.
+     * disconnect closes the http connection to save memory
      */
     public void disconnect() {
         if (connection != null) {

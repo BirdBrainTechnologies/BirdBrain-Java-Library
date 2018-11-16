@@ -1,8 +1,4 @@
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 
 /**
  * This class extends the Microbit class to incorporate functions to control the inputs and outputs
@@ -14,16 +10,33 @@ import java.net.URL;
  */
 public class Hummingbird extends Microbit {
 
-	private String outputError = "Error: Could not set Hummingbird LED output: ";
-	private String inputError = "Error: Could not read Hummingbird sensor: ";
-    
 	/**
      * Default constructor for the library. Set the default device to be A.
      */
     public Hummingbird() {
           deviceInstance = "A";
+          if (!isConnectionValid()) System.exit(0);
+          for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
 
+   
+    /**
+     * General constructor for the library. Set the device to be "A", "B", or "C".
+     *
+     * @param device The letter corresponding to the Hummingbird device, which much be "A", "B", or "C". 
+     * The letter that identifies the Hummingbird device is assigned by the BlueBird Connector.
+     *      */
+    public Hummingbird(String device) {
+    	if (!((device == "A")||(device == "B")||(device == "C"))) {
+        	System.out.println("Error: Device must be A, B, or C.");
+        	System.exit(0);
+        } else {
+        	deviceInstance = device;
+        	if (!isConnectionValid()) System.exit(0);
+        }
+    	for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
+    }
+    
     /* This function checks whether a port is within the given bounds. It returns a boolean value 
 	   that is either true or false and prints an error if necessary. */
 	protected boolean isPortValid(int port, int portMax) {
@@ -34,20 +47,6 @@ public class Hummingbird extends Microbit {
 		else
 			return true;	
 	}
-    /**
-     * General constructor for the library. Set the device to be "A", "B", or "C".
-     *
-     * @param device The letter corresponding to the Hummingbird device, which much be "A", "B", or "C". 
-     * The letter that identifies the Hummingbird device is assigned by the BlueBird Connector.
-     *      */
-    public Hummingbird(String device) {
-        if (!((device == "A")||(device == "B")||(device == "C"))) {
-        	System.out.println("Error: Device must be A, B, or C.");
-        	deviceInstance = "A";
-        } else {
-        	deviceInstance = device;
-        }
-    }
 
     /**
      * setPositionServo sets the positionServo at a given port to a specific angle.
