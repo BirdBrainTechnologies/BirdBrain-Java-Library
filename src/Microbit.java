@@ -127,6 +127,30 @@ public class Microbit {
             return false;
         }
     }
+    private boolean isMicrobit() {
+    	try { 
+	    	StringBuilder newURL = new StringBuilder(baseUrl);
+	        String testURL = (newURL.append("in/")
+	                .append("sensor/4/")
+	                .append(deviceInstance)).toString();
+	   	
+	       requestUrl = new URL(testURL);
+	       connection = (HttpURLConnection) requestUrl.openConnection();
+	       connection.setRequestMethod("GET");
+	       connection.setDoOutput(true);
+	
+	       String stringResponse = verifyResponse();
+	       if (stringResponse.equals("255")) return true;
+	       else {
+	    	   System.out.println("Error: Device "+deviceInstance+" is not a micro:bit");
+	    	   return false;
+	       }
+		} catch (IOException e) {
+	       System.out.println("Error: Device " + deviceInstance + " is not connected");
+	       return false;
+	   }
+    	
+    }
     /* This function checks whether an input parameter is within the given bounds. If not, it prints
 	   a warning and returns a value of the input parameter that is within the required range.
 	   Otherwise, it just returns the initial value. */
@@ -213,7 +237,7 @@ public class Microbit {
     public Microbit() {
         deviceInstance = "A";
         if (!isConnectionValid()) System.exit(0);
-        for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
+        if (!isMicrobit()) System.exit(0);
     }
 
     /**
@@ -228,8 +252,8 @@ public class Microbit {
         } else {
         	deviceInstance = device;
         	if (!isConnectionValid()) System.exit(0);
+        	if (!isMicrobit()) System.exit(0);       
         }
-    	for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
 
     

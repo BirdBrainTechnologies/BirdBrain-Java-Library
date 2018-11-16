@@ -1,4 +1,6 @@
-
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * This class extends the Microbit class to incorporate functions to control the inputs and outputs
@@ -16,7 +18,7 @@ public class Hummingbird extends Microbit {
     public Hummingbird() {
           deviceInstance = "A";
           if (!isConnectionValid()) System.exit(0);
-          for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
+          if (!isHummingbird()) System.exit(0);
     }
 
    
@@ -33,10 +35,36 @@ public class Hummingbird extends Microbit {
         } else {
         	deviceInstance = device;
         	if (!isConnectionValid()) System.exit(0);
+        	if (!isHummingbird()) System.exit(0);
         }
-    	for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
     
+    private boolean isHummingbird() {
+    	try { 
+	    	StringBuilder newURL = new StringBuilder(baseUrl);
+	        String testURL = (newURL.append("in/")
+	                .append("sensor/4/")
+	                .append(deviceInstance)).toString();
+	   	
+	       requestUrl = new URL(testURL);
+	       connection = (HttpURLConnection) requestUrl.openConnection();
+	       connection.setRequestMethod("GET");
+	       connection.setDoOutput(true);
+	
+	       String stringResponse = verifyResponse();
+	       if (stringResponse.equals("255")) {
+	    	   System.out.println("Error: Device "+deviceInstance+" is not a Hummingbird");
+	    	   return false;
+	       }
+	       else {
+	    	   return true;
+	       }
+		} catch (IOException e) {
+	       System.out.println("Error: Device " + deviceInstance + " is not connected");
+	       return false;
+	   }
+    	
+    }
     /* This function checks whether a port is within the given bounds. It returns a boolean value 
 	   that is either true or false and prints an error if necessary. */
 	protected boolean isPortValid(int port, int portMax) {
