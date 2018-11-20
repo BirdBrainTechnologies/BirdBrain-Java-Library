@@ -1,8 +1,9 @@
 public class HummingbirdTest {
     public static void main(String[] args) {
-        Hummingbird myBit = new Hummingbird("A");
+        //Hummingbird myBit = new Hummingbird("A");
+        Microbit testM = new Microbit("B");
         
-        for (int i = 0; i < 10; i++) {
+       /* for (int i = 0; i < 10; i++) {
         	myBit.setLED(1, 100);
         	myBit.pause(1);
         	myBit.setLED(1, 0);
@@ -10,6 +11,6 @@ public class HummingbirdTest {
         }
         
         myBit.stopAll();
-        myBit.disconnect();
+        myBit.disconnect();*/
     }
 }
