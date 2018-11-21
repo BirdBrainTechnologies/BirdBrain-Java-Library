@@ -10,7 +10,7 @@ import java.net.URL;
  * Mike Yuan and Bambi Brewer, BirdBrain Technologies LLC
  * November 2018
  */
-public class Hummingbird extends Microbit {
+public class Hummingbird extends Robot {
 
 	/**
      * Default constructor for the library. Set the default device to be A.
@@ -39,6 +39,9 @@ public class Hummingbird extends Microbit {
         }
     }
     
+    /** This function tries to read sensor 4 (the Hummingbird battery) to determine whether or not
+     * the device is a Hummingbird.
+     */
     private boolean isHummingbird() {
     	try { 
 	    	StringBuilder newURL = new StringBuilder(baseUrl);
