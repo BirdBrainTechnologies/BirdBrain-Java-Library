@@ -495,6 +495,8 @@ abstract class Robot {
     /* stopAll() turns off all the outputs. */
     public void stopAll() {
     
+    	pause(0.1);         // Hack to give stopAll() time to act before the end of a program
+	
 		// Build http request to turn off all the outputs
         StringBuilder resultUrl = new StringBuilder(baseUrl);
         String stopUrl = (resultUrl.append("out/")
