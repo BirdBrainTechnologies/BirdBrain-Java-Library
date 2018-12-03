@@ -173,7 +173,7 @@ public class Hummingbird extends Robot {
      * @param blueIntensity  The intensity of blue light of the triLED. (Range: 0-100)
      */
     public void setTriLED(int port, int redIntensity, int greenIntensity, int blueIntensity) {
-    	if (!isPortValid(port,3)) {		// Check that port is valid
+    	if (!isPortValid(port,2)) {		// Check that port is valid
         	return; 
         }
     	redIntensity = clampParameterToBounds(redIntensity,0,100);
