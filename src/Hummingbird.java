@@ -199,8 +199,8 @@ public class Hummingbird extends Robot {
     }
     
     void playNote(int note, double beats) {
-    	clampParameterToBounds(note, 32, 135);
-    	clampParameterToBounds(beats,0,16);
+    	note = clampParameterToBounds(note, 32, 135);
+    	beats = clampParameterToBounds(beats,0,16);
     	    	
     	
 		beats = beats * 1000;
