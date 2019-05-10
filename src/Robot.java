@@ -217,9 +217,7 @@ abstract class Robot {
      * @param msg The message that will be displayed on the LED Array.
      */
     public void print(String message) {
-        if (message.length() > 15) {
-        		System.out.println("Warning: print() requires a String with 15 or fewer characters."); 
-        }
+       
         // Warn the user if there are any special characters. Note that we don't use isCharacterOrDigit() because we can only display English characters
         char letter;
         for (int i = 0; i < message.length(); i++) {
