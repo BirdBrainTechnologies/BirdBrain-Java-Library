@@ -43,6 +43,21 @@ public class Hummingbird extends Robot {
      * the device is a Hummingbird.
      */
     private boolean isHummingbird() {
+        StringBuilder newURL = new StringBuilder(baseUrl);
+        String testURL = (newURL.append("in/isHummingbird/static/")
+                .append(deviceInstance)).toString();
+
+        String stringResponse = sendHttpRequest(testURL);
+        if (stringResponse.equals("false")) {
+            System.out.println("Error: Device " + deviceInstance + " is not a Hummingbird");
+            return false;
+        } else if (stringResponse.equals("Not Connected")) {
+            System.out.println("Error: Device " + deviceInstance + " is not connected.");
+            return false;
+        } else {
+            return true;
+        }
+        /*
     	try { 
 	    	StringBuilder newURL = new StringBuilder(baseUrl);
 	        String testURL = (newURL.append("in/")
@@ -66,7 +81,7 @@ public class Hummingbird extends Robot {
 	       System.out.println("Error: Device " + deviceInstance + " is not connected");
 	       return false;
 	   }
-    	
+    	*/
     }
     /* This function checks whether a port is within the given bounds. It returns a boolean value 
 	   that is either true or false and prints an error if necessary. */

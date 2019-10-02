@@ -17,6 +17,21 @@ public class Microbit extends Robot {
 	/** This function tries to read sensor 4 (the Hummingbird battery) to determine whether 
      * the device is a Hummingbird or a micro:bit. It returns true if the device is a micro:bit. */
     private boolean isMicrobit() {
+		StringBuilder newURL = new StringBuilder(baseUrl);
+		String testURL = (newURL.append("in/isMicrobit/static/")
+				.append(deviceInstance)).toString();
+
+		String stringResponse = sendHttpRequest(testURL);
+		if (stringResponse.equals("false")) {
+			System.out.println("Error: Device " + deviceInstance + " is not a Microbit");
+			return false;
+		} else if (stringResponse.equals("Not Connected")) {
+			System.out.println("Error: Device " + deviceInstance + " is not connected.");
+			return false;
+		} else {
+			return true;
+		}
+		/*
     	try { 
 	    	StringBuilder newURL = new StringBuilder(baseUrl);
 	        String testURL = (newURL.append("in/")
@@ -38,7 +53,7 @@ public class Microbit extends Robot {
 	       System.out.println("Error: Device " + deviceInstance + " is not connected");
 	       return false;
 	   }
-    	
+    	*/
     }
    
 

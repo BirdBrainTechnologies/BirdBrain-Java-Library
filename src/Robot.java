@@ -6,8 +6,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * This is an abstract class that is inherited by Microbit.java and Hummingbird.java. It includes methods to print on the micro:bit LED array or 
- * set those LEDs individually. It also contains methods to read the values of the micro:bit accelerometer and magnetometer.
+ * This is an abstract class that is inherited by Microbit.java, Hummingbird.java and Finch.java.
+ * It includes methods to print on the micro:bit LED array or set those LEDs individually. It also
+ * contains methods to read the values of the micro:bit accelerometer and magnetometer.
  * 
  * Mike Yuan and Bambi Breewer, BirdBrain Technologies LLC
  * November 2018
@@ -148,8 +149,25 @@ abstract class Robot {
 	 		return Math.max(inputMin, Math.min(inputMax,  parameter));
 	 	} else
 	 		return parameter;
-	 }
-    
+	}
+
+    /**
+     * General function for sending an http request
+     * @param URLRequest
+     */
+	protected String sendHttpRequest(String URLRequest) {
+        try {
+            requestUrl = new URL(URLRequest);
+            connection = (HttpURLConnection) requestUrl.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setDoOutput(true);
+            return verifyResponse();
+        } catch (IOException e) {
+            System.out.println("Error sending http request: " + e.getMessage());
+            return "Not Connected";
+        }
+	}
+
 	/* This function sends http requests that set outputs (lights, motors, buzzer, 
 	 * etc.) on the micro:bit and Hummingbird. */
     protected void httpRequestOut(String URLRequest) {
@@ -214,7 +232,7 @@ abstract class Robot {
     /**
      * print() lets the LED Array display a given message.
      *
-     * @param msg The message that will be displayed on the LED Array.
+     * @param message The message that will be displayed on the LED Array.
      */
     public void print(String message) {
        
