@@ -12,6 +12,14 @@ import java.net.URL;
  */
 public class Finch extends Robot {
 
+    // String variables used to return the orientation of the finch
+    private static final String BEAK_UP = "Beak%20Up";
+    private static final String BEAK_DOWN = "Beak%20Down";
+    private static final String TILT_LEFT = "Tilt%20Left";
+    private static final String TILT_RIGHT = "Tilt%20Right";
+    private static final String LEVEL = "Level";
+    private static final String UPSIDE_DOWN = "Upside%20Down";
+
     /**
      * Default constructor for the library. Set the default device to be A.
      */
@@ -33,6 +41,12 @@ public class Finch extends Robot {
             deviceInstance = device;
             if (!isConnectionValid()) System.exit(0);
             if (!isFinch()) System.exit(0);
+
+            //The finch has separate requests for these so that the results returned
+            // are in the finch reference frame.
+            magRequest = "finchMag";
+            accelRequest = "finchAccel";
+            compassRequest = "finchCompass";
         }
     }
 
@@ -66,10 +80,12 @@ public class Finch extends Robot {
     private String formatForwardBackward(String direction) {
         switch (direction) {
             case "F":
+            case "f":
             case "Forward":
             case "forward":
                 return "Forward";
             case "B":
+            case "b":
             case "Backward":
             case "backward":
                 return "Backward";
@@ -88,10 +104,12 @@ public class Finch extends Robot {
     private String formatRightLeft(String direction) {
         switch (direction) {
             case "R":
+            case "r":
             case "Right":
             case "right":
                 return "Right";
             case "L":
+            case "l":
             case "Left":
             case "left":
                 return "Left";
@@ -116,6 +134,31 @@ public class Finch extends Robot {
     }
 
     /**
+     * Send a command to move the finch and wait until the finch has finished
+     * its motion to return. Used by setMove and setTurn.
+     * @param motion - Move or turn
+     * @param direction - forward, backward, right or left
+     * @param length - Length of travel (distance or angle
+     * @param speed - Speed as a percent (Range: 0 to 100)
+     */
+    private void moveFinchAndWait(String motion, String direction, int length, int speed){
+        String [] imUrlArgs = {"in", "finchIsMoving", "static", deviceInstance};
+        String isMovingUrl = getUrl(imUrlArgs);
+        boolean isMoving = httpRequestInBoolean(isMovingUrl);
+        boolean wasMoving = isMoving;
+
+        String [] urlArgs = {"out", motion, deviceInstance, direction, Integer.toString(length), Integer.toString(speed)};
+        String url = getUrl(urlArgs);
+        httpRequestOut(url);
+
+        while (!(wasMoving && !isMoving)){
+            wasMoving = isMoving;
+            pause(0.01);
+            isMoving = httpRequestInBoolean(isMovingUrl);
+        }
+    }
+
+    /**
      * Sends a request for the finch to move forward or backward a given distance
      * at a given speed. Direction should be specified as "F" or "B".
      * @param direction - F or B for forward or backward
@@ -129,9 +172,7 @@ public class Finch extends Robot {
         distance = clampParameterToBounds(distance, 0, 500);
         speed = clampParameterToBounds(speed, 0, 100);
 
-        String [] urlArgs = {"out", "move", deviceInstance, dir, Integer.toString(distance), Integer.toString(speed)};
-        String url = getUrl(urlArgs);
-        httpRequestOut(url);
+        moveFinchAndWait("move", dir, distance, speed);
     }
 
     /**
@@ -148,9 +189,7 @@ public class Finch extends Robot {
         angle = clampParameterToBounds(angle, 0, 360);
         speed = clampParameterToBounds(speed, 0, 100);
 
-        String [] urlArgs = {"out", "turn", deviceInstance, dir, Integer.toString(angle), Integer.toString(speed)};
-        String url = getUrl(urlArgs);
-        httpRequestOut(url);
+        moveFinchAndWait("turn", dir, angle, speed);
     }
 
     /**
@@ -244,6 +283,7 @@ public class Finch extends Robot {
         String [] urlArgs = {"out", "resetEncoders", deviceInstance};
         String url = getUrl(urlArgs);
         httpRequestOut(url);
+        pause(0.1); //Give the finch a chance to reset before moving on
     }
 
     /**
@@ -302,5 +342,41 @@ public class Finch extends Robot {
     public int getLine(String direction) {
         double value = getSensor("Line", direction);
         return 100 - (int)value;
+    }
+
+    /**
+     * Checks whether or not the finch is in the given orientation.
+     *
+     * @param orientation - Orientation to check
+     * @return - True iff the finch is in the given orientation
+     */
+    private boolean getOrientationBoolean(String orientation) {
+        String [] urlArgs = {"in", "finchOrientation", orientation, deviceInstance};
+        String url = getUrl(urlArgs);
+        return httpRequestInBoolean(url);
+    }
+
+    /**
+     * getOrientation() provides information about the finch's current orientation.
+     * This function overrides the function in the Robot class so that results are
+     * in the finch reference frame.
+     *
+     * @return the orientation of the finch. (Range: Beak up, Beak down, Tilt left, Tilt right, Level, Upside down)
+     */
+    public String getOrientation() {
+        boolean beakUp = getOrientationBoolean(BEAK_UP);
+        boolean beakDown = getOrientationBoolean(BEAK_DOWN);
+        boolean tiltLeft = getOrientationBoolean(TILT_LEFT);
+        boolean tiltRight = getOrientationBoolean(TILT_RIGHT);
+        boolean level = getOrientationBoolean(LEVEL);
+        boolean upsideDown = getOrientationBoolean(UPSIDE_DOWN);
+
+        if (beakUp) return "Beak up";
+        else if (beakDown) return "Beak down";
+        else if (tiltLeft) return "Tilt left";
+        else if (tiltRight) return "Tilt right";
+        else if (level) return "Level";
+        else if (upsideDown) return "Upside down";
+        return "In between";
     }
 }

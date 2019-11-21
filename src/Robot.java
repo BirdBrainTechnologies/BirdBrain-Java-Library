@@ -34,7 +34,11 @@ abstract class Robot {
 	private String inputError = "Error: Could not read sensor on the device ";
 	
 	protected boolean[] displayStatus = new boolean[25];
-    
+
+	protected String magRequest = "Magnetometer";
+	protected String accelRequest = "Accelerometer";
+	protected String compassRequest = "Compass";
+
     /**
      * verifyOutputResponse checks whether the HTTP request response is valid or not.
      * If the response code indicates that the response is invalid, the connector will be disconnected.
@@ -347,7 +351,7 @@ abstract class Robot {
         
         StringBuilder resultUrl = new StringBuilder(baseUrl);
         String acclUrl = (resultUrl.append("in/")
-                .append("Accelerometer/")
+                .append(accelRequest + "/")
                 .append(dir + "/")
                 .append(deviceInstance)).toString();
 
@@ -362,7 +366,7 @@ abstract class Robot {
     private double getMagnetometerValInDirs(String dir) {
         StringBuilder resultUrl = new StringBuilder(baseUrl);
         String magUrl = (resultUrl.append("in/")
-                .append("Magnetometer/")
+                .append(magRequest + "/")
                 .append(dir + "/")
                 .append(deviceInstance)).toString();
 
@@ -410,7 +414,7 @@ abstract class Robot {
         
         StringBuilder resultUrl = new StringBuilder(baseUrl);
         String compassUrl = (resultUrl.append("in/")
-                .append("Compass/")
+                .append(compassRequest + "/")
                 .append(deviceInstance)).toString();
 
         return (int) httpRequestInDouble(compassUrl);
