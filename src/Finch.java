@@ -322,7 +322,7 @@ public class Finch extends Robot {
      * @param direction - R or L to specify right or left
      * @return - encoder value in rotations
      */
-    public double getEncoders(String direction) {
+    public double getEncoder(String direction) {
         double value = getSensor("Encoder", direction);
         value = Math.round(value * 100.0)/100.0;
         return value;
