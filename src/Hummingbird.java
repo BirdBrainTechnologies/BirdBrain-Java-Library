@@ -1,7 +1,3 @@
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 /**
  * This class extends the Microbit class to incorporate functions to control the inputs and outputs
  * of the Hummingbird Bit. It includes methods to set the values of motors and LEDs, as well

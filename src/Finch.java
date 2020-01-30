@@ -1,7 +1,3 @@
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 /**
  * This class extends the Robot class to incorporate functions to control the inputs and outputs
  * of the Finch. It includes methods to set the values of motors and LEDs, as well
@@ -258,7 +254,26 @@ public class Finch extends Robot {
      * @param blue - blue intensity (Range: 0 to 100)
      */
     public void setTail(int ledNum, int red, int green, int blue) {
+        ledNum = clampParameterToBounds(ledNum, 1, 4);
         setTriLED(ledNum + 1, red, green, blue);
+    }
+
+    /**
+     * Set all tail leds to the specified rgb color.
+     * @param ledNum - String which must be specified as 'all'
+     * @param red - red intensity (Range: 0 to 100)
+     * @param green - green intensity (Range: 0 to 100)
+     * @param blue - blue intensity (Range: 0 to 100)
+     */
+    public void setTail(String ledNum, int red, int green, int blue) {
+        if (!ledNum.equals("all") && !ledNum.equals("All") && !ledNum.equals("ALL")) {
+            System.out.println("Error: Please specify tail led number or 'all'");
+            return;
+        }
+
+        for (int i = 2; i < 6; i++) {
+            setTriLED(i, red, green, blue);
+        }
     }
 
     /**

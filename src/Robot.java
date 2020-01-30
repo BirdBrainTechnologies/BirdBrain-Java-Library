@@ -524,5 +524,8 @@ abstract class Robot {
                 .append(deviceInstance)).toString();
         
         httpRequestOut(stopUrl);
+
+        //Set the current display status to all off
+        for (int i = 0; i < displayStatus.length; i++) displayStatus[i] = false;
     }
 }

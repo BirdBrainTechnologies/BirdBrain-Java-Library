@@ -5,9 +5,13 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/hummingbit/Finch.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/hummingbit/Finch.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/hummingbit/FinchTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/hummingbit/FinchTest.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/hummingbit/Hummingbird.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/hummingbit/Hummingbird.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/hummingbit/Microbit.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/hummingbit/Microbit.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/out/production/hummingbit/Robot.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/hummingbit/Robot.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Finch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Finch.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FinchTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FinchTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Hummingbird.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Hummingbird.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Microbit.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Microbit.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Robot.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Robot.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />

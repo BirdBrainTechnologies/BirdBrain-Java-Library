@@ -1,9 +1,3 @@
-
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 /**
  * This class controls a micro:bit via bluetooth. It inherits almost 
  * all its functionality from the abstract class Robot. The only methods it needs here are constructors, 
