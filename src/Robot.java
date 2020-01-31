@@ -394,14 +394,14 @@ abstract class Robot {
      *
      * @return the magnetometer values in 3 directions (X,Y,Z) in microT.
      */
-    public double[] getMagnetometer() {
-        double[] magnetometerVals = new double[3];
+    public int[] getMagnetometer() {
+        int[] magnetometerVals = new int[3];
         double resX = getMagnetometerValInDirs("X");
         double resY = getMagnetometerValInDirs("Y");
         double resZ = getMagnetometerValInDirs("Z");
-        magnetometerVals[0] = resX;
-        magnetometerVals[1] = resY;
-        magnetometerVals[2] = resZ;
+        magnetometerVals[0] = (int)Math.round(resX);
+        magnetometerVals[1] = (int)Math.round(resY);
+        magnetometerVals[2] = (int)Math.round(resZ);
         return magnetometerVals;
     }
 
