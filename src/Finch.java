@@ -142,12 +142,13 @@ public class Finch extends Robot {
         String isMovingUrl = getUrl(imUrlArgs);
         boolean isMoving = httpRequestInBoolean(isMovingUrl);
         boolean wasMoving = isMoving;
+        long commandSendTime = System.currentTimeMillis();
 
         String [] urlArgs = {"out", motion, deviceInstance, direction, Integer.toString(length), Integer.toString(speed)};
         String url = getUrl(urlArgs);
         httpRequestOut(url);
 
-        while (!(wasMoving && !isMoving)){
+        while (!((System.currentTimeMillis() > commandSendTime + 500 || wasMoving) && !isMoving)){
             wasMoving = isMoving;
             pause(0.01);
             isMoving = httpRequestInBoolean(isMovingUrl);
@@ -165,7 +166,7 @@ public class Finch extends Robot {
         String dir = formatForwardBackward(direction);
         if (dir.equals("Neither")) { return; }
 
-        distance = clampParameterToBounds(distance, 0, 500);
+        distance = clampParameterToBounds(distance, 0, 10000);
         speed = clampParameterToBounds(speed, 0, 100);
 
         moveFinchAndWait("move", dir, distance, speed);
@@ -182,7 +183,7 @@ public class Finch extends Robot {
         String dir = formatRightLeft(direction);
         if (dir.equals("Neither")) { return; }
 
-        angle = clampParameterToBounds(angle, 0, 360);
+        angle = clampParameterToBounds(angle, -360000, 360000);
         speed = clampParameterToBounds(speed, 0, 100);
 
         moveFinchAndWait("turn", dir, angle, speed);
@@ -356,7 +357,7 @@ public class Finch extends Robot {
      */
     public int getLine(String direction) {
         double value = getSensor("Line", direction);
-        return 100 - (int)value;
+        return (int)value;
     }
 
     /**
