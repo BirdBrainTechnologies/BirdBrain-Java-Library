@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2ed1b79d-a491-4a3c-8049-6542f4fc6e84" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Finch.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Finch.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/out/production/hummingbit/FinchTest.class" beforeDir="false" afterPath="$PROJECT_DIR$/out/production/hummingbit/FinchTest.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/FinchTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/FinchTest.java" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />

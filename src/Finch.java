@@ -345,7 +345,7 @@ public class Finch extends Robot {
      */
     public int getLight(String direction) {
         double value = getSensor("Light", direction);
-        return (int) Math.round(value * 100/255);
+        return (int) Math.round(value);
     }
 
     /**
