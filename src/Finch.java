@@ -166,7 +166,7 @@ public class Finch extends Robot {
         String dir = formatForwardBackward(direction);
         if (dir.equals("Neither")) { return; }
 
-        distance = clampParameterToBounds(distance, 0, 10000);
+        distance = clampParameterToBounds(distance, -10000, 10000);
         speed = clampParameterToBounds(speed, 0, 100);
 
         moveFinchAndWait("move", dir, distance, speed);
@@ -299,7 +299,7 @@ public class Finch extends Robot {
         String [] urlArgs = {"out", "resetEncoders", deviceInstance};
         String url = getUrl(urlArgs);
         httpRequestOut(url);
-        pause(0.1); //Give the finch a chance to reset before moving on
+        pause(0.2); //Give the finch a chance to reset before moving on
     }
 
     /**
