@@ -134,17 +134,17 @@ public class Finch extends Robot {
      * its motion to return. Used by setMove and setTurn.
      * @param motion - Move or turn
      * @param direction - forward, backward, right or left
-     * @param length - Length of travel (distance or angle
+     * @param length - Length of travel (distance or angle)
      * @param speed - Speed as a percent (Range: 0 to 100)
      */
-    private void moveFinchAndWait(String motion, String direction, int length, int speed){
+    private void moveFinchAndWait(String motion, String direction, double length, double speed){
         String [] imUrlArgs = {"in", "finchIsMoving", "static", deviceInstance};
         String isMovingUrl = getUrl(imUrlArgs);
         boolean isMoving = httpRequestInBoolean(isMovingUrl);
         boolean wasMoving = isMoving;
         long commandSendTime = System.currentTimeMillis();
 
-        String [] urlArgs = {"out", motion, deviceInstance, direction, Integer.toString(length), Integer.toString(speed)};
+        String [] urlArgs = {"out", motion, deviceInstance, direction, Double.toString(length), Double.toString(speed)};
         String url = getUrl(urlArgs);
         httpRequestOut(url);
 
@@ -162,7 +162,7 @@ public class Finch extends Robot {
      * @param distance - Distance to travel in cm. (Range: 0 to 500)
      * @param speed - Speed as a percent (Range: 0 to 100)
      */
-    public void setMove(String direction, int distance, int speed) {
+    public void setMove(String direction, double distance, double speed) {
         String dir = formatForwardBackward(direction);
         if (dir.equals("Neither")) { return; }
 
@@ -179,7 +179,7 @@ public class Finch extends Robot {
      * @param angle - Angle of the turn in degrees (Range: 0 to 360)
      * @param speed - Speed of the turn as a percent (Range: 0 to 100)
      */
-    public void setTurn(String direction, int angle, int speed) {
+    public void setTurn(String direction, double angle, double speed) {
         String dir = formatRightLeft(direction);
         if (dir.equals("Neither")) { return; }
 
@@ -194,11 +194,11 @@ public class Finch extends Robot {
      * @param leftSpeed - Speed as a percent (Range: 0 to 100)
      * @param rightSpeed - Speed as a percent (Range: 0 to 100)
      */
-    public void setMotors(int leftSpeed, int rightSpeed) {
+    public void setMotors(double leftSpeed, double rightSpeed) {
         leftSpeed = clampParameterToBounds(leftSpeed, -100, 100);
         rightSpeed = clampParameterToBounds(rightSpeed, -100, 100);
 
-        String [] urlArgs = {"out", "wheels", deviceInstance, Integer.toString(leftSpeed), Integer.toString(rightSpeed)};
+        String [] urlArgs = {"out", "wheels", deviceInstance, Double.toString(leftSpeed), Double.toString(rightSpeed)};
         String url = getUrl(urlArgs);
         httpRequestOut(url);
     }
