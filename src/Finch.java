@@ -42,7 +42,7 @@ public class Finch extends Robot {
             // are in the finch reference frame.
             magRequest = "finchMag";
             accelRequest = "finchAccel";
-            compassRequest = "finchCompass";
+            compassRequest = "finchCompass/static";
         }
     }
 
