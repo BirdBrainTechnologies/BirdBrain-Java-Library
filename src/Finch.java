@@ -214,13 +214,13 @@ public class Finch extends Robot {
 
     /**
      * Private method to set led intensity. Used to set beak and tail leds.
-     * @param port - led to set. 1 is beak. 2-5 are tail. (Range: 1 to 5)
+     * @param port - led to set. 1 is beak. 2-5 are tail. 6 sets entire tail. (Range: 1 to 6)
      * @param redIntensity - red intensity (Range: 0 to 100)
      * @param greenIntensity - green intensity (Range: 0 to 100)
      * @param blueIntensity - blue intensity (Range: 0 to 100)
      */
     private void setTriLED(int port, int redIntensity, int greenIntensity, int blueIntensity) {
-        if ((port < 1) || (port > 5)) {		// Check that port is valid
+        if ((port < 1) || (port > 6)) {		// Check that port is valid
             return;
         }
         redIntensity = clampParameterToBounds(redIntensity,0,100);
@@ -232,7 +232,10 @@ public class Finch extends Robot {
         greenIntensity = (int) (greenIntensity * 255.0 / 100.0);
         blueIntensity = (int) (blueIntensity * 255.0 / 100.0);
 
-        String [] urlArgs = {"out", "triled", Integer.toString(port), Integer.toString(redIntensity), Integer.toString(greenIntensity), Integer.toString(blueIntensity), deviceInstance};
+        String portString = Integer.toString(port);
+        if (port == 6) { portString = "all"; }
+
+        String [] urlArgs = {"out", "triled", portString, Integer.toString(redIntensity), Integer.toString(greenIntensity), Integer.toString(blueIntensity), deviceInstance};
         String url = getUrl(urlArgs);
         httpRequestOut(url);
     }
@@ -272,9 +275,7 @@ public class Finch extends Robot {
             return;
         }
 
-        for (int i = 2; i < 6; i++) {
-            setTriLED(i, red, green, blue);
-        }
+        setTriLED(6, red, green, blue);
     }
 
     /**
