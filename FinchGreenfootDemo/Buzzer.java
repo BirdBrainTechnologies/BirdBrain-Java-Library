@@ -3,10 +3,9 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 /**
  * A buzzer, causes the finch to buzz when clicked.
  * 
- * @author Michael Berry
- * @version 01/12/10
+ * This class is based on the original 2010 Buzzer by Michael Berry
  */
-public class Buzzer  extends Actor
+public class Buzzer  extends FinchActor
 {
     /**
      * Act - do whatever the Buzzer wants to do. This method is called whenever
@@ -16,7 +15,7 @@ public class Buzzer  extends Actor
     {
         MouseInfo mi = Greenfoot.getMouseInfo();
         if(mi != null && mi.getClickCount()==1 && mi.getActor()==this) {
-            GreenFinch.get().buzz(60, 1);
+            getFinch().playNote(60, 1);
         }
     }    
 }

@@ -1,16 +1,18 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import java.io.PrintStream;
+import java.io.OutputStream;
 
 /**
  * The world where all the finch's demo components are stored.
  * 
- * @author Michael Berry
- * @version 01/12/10
+ * This class is based on the original 2010 FinchWorld by Michael Berry
  */
 public class FinchWorld  extends World
 {
 
     private Slider redSlider, greenSlider, blueSlider;
     private Slider xSlider, ySlider, zSlider;
+    private Finch finch;
 
     public FinchWorld()
     {    
@@ -23,12 +25,17 @@ public class FinchWorld  extends World
      * Manage the sliders.
      */
     public void act() {
-        GreenFinch.get().setLED(redSlider.getValue(), greenSlider.getValue(), blueSlider.getValue());
-        int xAccel = (int)(GreenFinch.get().getXAcceleration()*5+50);
+        int red = redSlider.getValue();
+        int green = greenSlider.getValue();
+        int blue = blueSlider.getValue();
+        getFinch().setBeak(red, green, blue);
+        getFinch().setTail("all", red, green, blue);
+        double [] acceleration = getFinch().getAcceleration();
+        int xAccel = (int)(acceleration[0]*5+50);
         xSlider.setValue(xAccel);
-        int yAccel = (int)(GreenFinch.get().getYAcceleration()*5+50);
+        int yAccel = (int)(acceleration[1]*5+50);
         ySlider.setValue(yAccel);
-        int zAccel = (int)(GreenFinch.get().getZAcceleration()*5+50);
+        int zAccel = (int)(acceleration[2]*5+50);
         zSlider.setValue(zAccel);
     }
 
@@ -37,7 +44,7 @@ public class FinchWorld  extends World
      */
     @Override
     public void started() {
-        GreenFinch.get().start();
+        startFinch();
     }
 
     /**
@@ -45,7 +52,7 @@ public class FinchWorld  extends World
      */
     @Override
     public void stopped() {
-        GreenFinch.get().stop();
+        stopFinch();
     }
 
     /**
@@ -81,8 +88,7 @@ public class FinchWorld  extends World
         addObject(xSlider, 495, 63);
         addObject(ySlider, 495, 93);
         addObject(zSlider, 495, 123);
-        addObject(new LeftBump(),445,195);
-        addObject(new RightBump(),515,195);
+        addObject(new Bump(),445,195);
         addObject(new LeftLight(),410,285);
         addObject(new AverageLight(),480,285);
         addObject(new RightLight(),550,285);
@@ -92,5 +98,48 @@ public class FinchWorld  extends World
 
         addObject(new Label("Use the   "), 255,250);
         addObject(new Label("arrow keys!"), 250,265);
+        
+        addObject(new Compass(),549,200);
+        addObject(new Label("N  "), 545,170);
+        addObject(new Label("E  "), 590,210);
+        addObject(new Label("W  "), 500,210);
+        addObject(new Label("S  "), 545,250);
+    }
+    
+    /**
+     * Start the finch.
+     */
+    private void startFinch() {
+        System.out.print("Connecting...");
+        stopFinch();
+        PrintStream ps = System.out;
+        System.setOut(new PrintStream(new OutputStream(){public void write(int b){}}));
+        finch = new Finch();
+        System.setOut(ps);
+        System.out.println("Done");
+    }
+    
+    /**
+     * Stop the finch.
+     */
+    private void stopFinch() {
+        if(finch != null) {
+            System.out.print("Stopping...");
+            finch.stopAll();
+            finch.disconnect();
+            System.out.println("Done");
+            finch = null;
+        }
+    }
+    
+    /**
+     * Get the current finch object.
+     * @return the raw finch object.
+     */
+    public Finch getFinch() {
+        if(finch==null) {
+            startFinch();
+        }
+        return finch;
     }
 }

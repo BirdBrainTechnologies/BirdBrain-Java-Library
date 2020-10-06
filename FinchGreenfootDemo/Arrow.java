@@ -6,10 +6,9 @@ import java.awt.geom.*;
  * An arrow, subclasses of this highlight when their corresponding arrow is pressed. This class
  * will also drive the finch depending on key input.
  * 
- * @author Michael Berry 
- * @version 01/12/10
+ * This class is based on the original 2010 Arrow by Michael Berry
  */
-public abstract class Arrow  extends Actor
+public abstract class Arrow extends FinchActor
 {
 
     public static final GreenfootImage normalImage = new GreenfootImage("arrow.jpg");
@@ -23,21 +22,22 @@ public abstract class Arrow  extends Actor
         setImage(normalImage);
     }
     
+    
     public void act() {
         if(Greenfoot.isKeyDown("up")) {
-            GreenFinch.get().setMotors(100, 100);
+            getFinch().setMotors(100, 100);
         }
         else if(Greenfoot.isKeyDown("down")) {
-            GreenFinch.get().setMotors(-100, -100);
+            getFinch().setMotors(-100, -100);
         }
         else if(Greenfoot.isKeyDown("left")) {
-            GreenFinch.get().setMotors(-100, 100);
+            getFinch().setMotors(-100, 100);
         }
         else if(Greenfoot.isKeyDown("right")) {
-            GreenFinch.get().setMotors(100, -100);
+            getFinch().setMotors(100, -100);
         }
         else {
-            GreenFinch.get().setMotors(0,0);
+            getFinch().setMotors(0,0);
         }
     }
 }

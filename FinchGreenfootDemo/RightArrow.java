@@ -1,10 +1,7 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * Write a description of class RightArrow here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * The right arrow image.
  */
 public class RightArrow  extends Arrow
 {

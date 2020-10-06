@@ -1,7 +1,7 @@
 *.DS_Store
 *.class
 *.ctxt
-FinchGreenfootDemo/com/birdbraintechnologies/Finch.java
-FinchGreenfootDemo/com/birdbraintechnologies/Hummingbird.java
-FinchGreenfootDemo/com/birdbraintechnologies/Microbit.java
-FinchGreenfootDemo/com/birdbraintechnologies/Robot.java
+FinchGreenfootDemo/Robot.java
+FinchGreenfootDemo/Microbit.java
+FinchGreenfootDemo/Hummingbird.java
+FinchGreenfootDemo/Finch.java

@@ -1,10 +1,7 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * Write a description of class AverageLight here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Set the block based on the average of the finch's light sensors.
  */
 public class AverageLight  extends LightBlock
 {
@@ -14,6 +11,8 @@ public class AverageLight  extends LightBlock
      */
     public void act() 
     {
-        super.setBlock(1);
+        double left = getFinch().getLight("L");
+        double right = getFinch().getLight("R");
+        super.setBlock((left + right)/2);
     }    
 }

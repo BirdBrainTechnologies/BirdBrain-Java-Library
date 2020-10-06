@@ -1,10 +1,7 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * Write a description of class LeftLight here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * Set the block based on the finch's left light sensor.
  */
 public class LeftLight  extends LightBlock
 {
@@ -14,6 +11,6 @@ public class LeftLight  extends LightBlock
      */
     public void act() 
     {
-        super.setBlock(0);
+        super.setBlock(getFinch().getLight("L"));
     }
 }

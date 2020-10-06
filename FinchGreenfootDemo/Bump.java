@@ -3,10 +3,9 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 /**
  * A block of colour in the world that changes to a different colour upon a "bump".
  * 
- * @author Michael Berry
- * @version 01/12/10
+ * This class is based on the original 2010 Bump by Michael Berry
  */
-public class Bump  extends Actor
+public class Bump  extends FinchActor
 {
 
     public Bump() {
@@ -23,5 +22,12 @@ public class Bump  extends Actor
             getImage().setColor(greenfoot.Color.GREEN);
         }
         getImage().fillRect(0,0,getImage().getWidth(),getImage().getHeight());
+    }
+    
+    public void act() {
+        boolean isHit = false;
+        if(getFinch().getDistance() < 20)
+            isHit = true;
+        setBumped(isHit);
     }
 }

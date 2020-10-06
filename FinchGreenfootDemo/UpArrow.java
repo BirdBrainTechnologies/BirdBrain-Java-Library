@@ -1,10 +1,7 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**
- * Write a description of class UpArrow here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+ * The up arrow image.
  */
 public class UpArrow  extends Arrow
 {
