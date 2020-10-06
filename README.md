@@ -1,0 +1,3 @@
+This repo stores the Java library for use with the Hummingbird Bit and Finch 2.0 robots. To use, install BlueBird Connector and connect your robot(s).
+
+To create the Greenfoot demo project: Download this repository and drag the main library classes (Robot.java, Microbit.java, Hummingbird.java, and Finch.java) into the FinchGreenfootDemo folder. The demo can now be opened by double clicking project.greenfoot. For a blank project, remove all the files except the main libary classes, FinchWorld.java, and FinchActor.java. Then, in FinchWorld.java, empty the prepare() and act() functions, and remove the Slider variables at the top of the class. 
