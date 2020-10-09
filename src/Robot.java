@@ -39,97 +39,23 @@ abstract class Robot {
 	protected String accelRequest = "Accelerometer";
 	protected String compassRequest = "Compass";
 
-    /**
-     * verifyOutputResponse checks whether the HTTP request response is valid or not.
-     * If the response code indicates that the response is invalid, the connector will be disconnected.
-     */
-    protected void verifyOutputResponse() {
-        try {
-            int responseCode = connection.getResponseCode();
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                        connection.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-            } else {
-                System.out.println(outputError);
-                disconnect();
-            }
-        } catch (IOException e) {
-        		System.out.println(outputError + e.getMessage());
-            disconnect();
-        }
-    }
-
-    /**
-     * verifyResponse is used for retrieving sensor information.
-     * It checks whether the HTTP request request is valid or not and returns the response if it is valid.
-     * Otherwise, the connector will be disconnected.
-     *
-     * @return
-     */
-    protected String verifyResponse() {
-        try {
-            int responseCode = connection.getResponseCode();
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                        connection.getInputStream()));
-                String inputLine;
-                StringBuffer response = new StringBuffer();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                if (response.toString().contains("Not Connected")) {
-                    return "Not Connected";
-                } else {
-                    return response.toString();
-                }
-            } else {
-                System.out.println(inputError);
-                disconnect();
-                return "Not Connected";
-            }
-        } catch (IOException e) {
-        		System.out.println(inputError + e.getMessage());
-            disconnect();
-            return "Not Connected";
-        }
-    }
     
     /* This function tests a connection by attempting to read whether or not the micro:bit is shaking. 
      * Return true if the connection is good and false otherwise. 
      */
     protected boolean isConnectionValid() {
-    	try {
-	    	 StringBuilder newURL = new StringBuilder(baseUrl);
-	         String testURL = (newURL.append("in/")
-	                 .append("orientation/")
-	                 .append(SHAKE + "/")
-	                 .append(deviceInstance)).toString();
-	    	
-	        requestUrl = new URL(testURL);
-	        connection = (HttpURLConnection) requestUrl.openConnection();
-	        connection.setRequestMethod("GET");
-	        connection.setDoOutput(true);
-	
-	        String stringResponse = verifyResponse();
-	        if (stringResponse.equals("Not Connected")) {
-	        	System.out.println("Error: Device " + deviceInstance + " is not connected");
-	        	return false;
-	        } else {
-	        	return true;
-	        }
-    	} catch (IOException e) {
-            System.out.println("Error: Device " + deviceInstance + " is not connected");
+
+         StringBuilder newURL = new StringBuilder(baseUrl);
+         String testURL = (newURL.append("in/")
+                 .append("orientation/")
+                 .append(SHAKE + "/")
+                 .append(deviceInstance)).toString();
+
+        String stringResponse = sendHttpRequest(testURL);
+        if (stringResponse.equals("Not Connected")) {
             return false;
+        } else {
+            return true;
         }
     }
     
@@ -156,81 +82,78 @@ abstract class Robot {
 	}
 
     /**
-     * General function for sending an http request
+     * General function for sending an http request and returning the response
      * @param URLRequest
+     * @return String response
      */
 	protected String sendHttpRequest(String URLRequest) {
+        long requestStartTime = System.currentTimeMillis();
+	    String responseString = "Not Connected";
         try {
             requestUrl = new URL(URLRequest);
             connection = (HttpURLConnection) requestUrl.openConnection();
             connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-            return verifyResponse();
+            //connection.setDoOutput(true);
+
+            int responseCode = connection.getResponseCode();
+            if (responseCode == 200) {
+                BufferedReader in = new BufferedReader(new InputStreamReader(
+                        connection.getInputStream()));
+                String inputLine;
+                StringBuffer response = new StringBuffer();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+
+                if (!response.toString().contains("Not Connected")) {
+                    responseString = response.toString();
+                }
+            } else {
+                System.out.println(inputError);
+            }
+
         } catch (IOException e) {
             System.out.println("Error sending http request: " + e.getMessage());
-            return "Not Connected";
+        } finally {
+            if (responseString.equals("Not Connected")) {
+                System.out.println("Error: Device " + deviceInstance + " is not connected");
+            }
+            disconnect();
         }
+        //If too many requests get sent too quickly, macOS gets overwhelmed and starts to insert pauses.
+        while(System.currentTimeMillis() < requestStartTime + 5) {}
+
+        return responseString;
+
 	}
 
 	/* This function sends http requests that set outputs (lights, motors, buzzer, 
 	 * etc.) on the micro:bit and Hummingbird. */
     protected void httpRequestOut(String URLRequest) {
-    	try {
-            requestUrl = new URL(URLRequest);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-            verifyOutputResponse();
-        } catch (IOException e) {
-        		System.out.println(outputError + e.getMessage());
-        }
+        String response = sendHttpRequest(URLRequest);
     }
     
     /* This function sends http requests that return a double response from a sensor. */
     protected double httpRequestInDouble(String URLRequest) {
-    	try {
-            double response;
-            String stringResponse;
-            requestUrl = new URL(URLRequest);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            stringResponse = verifyResponse();
-            if (stringResponse.equals("Not Connected")) {
-            	System.out.println("Error: The device is not connected");
-            	return -1;
-            } else {
-            	response = Double.parseDouble(stringResponse);
-            	return response;
-            }
-        } catch (IOException e) {
-            System.out.println(inputError + e.getMessage());
+        String stringResponse = sendHttpRequest(URLRequest);
+        if (stringResponse.equals("Not Connected")) {
             return -1;
+        } else {
+            return Double.parseDouble(stringResponse);
         }
     }
     
     /* This function sends http requests that return a boolean response from a sensor. */
     protected boolean httpRequestInBoolean(String URLRequest) {
-    	try {
-            String response;
-            requestUrl = new URL(URLRequest);
-            connection = (HttpURLConnection) requestUrl.openConnection();
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-
-            response = verifyResponse();
-            if (response.equals("Not Connected")) {
-            	System.out.println("Error: The device is not connected");
-            	return false;
-            } else return (response.equals("true"));
-        } catch (IOException e) {
-            System.out.println(inputError + e.getMessage());
+        String stringResponse = sendHttpRequest(URLRequest);
+        if (stringResponse.equals("Not Connected")) {
             return false;
+        } else {
+            return (stringResponse.equals("true"));
         }
     }
-
-    
 
     
     /**
