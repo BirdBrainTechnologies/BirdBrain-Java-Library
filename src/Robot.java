@@ -82,6 +82,20 @@ abstract class Robot {
 	}
 
     /**
+     * Create a url string given a list of arguments to include
+     * @param args
+     * @return
+     */
+    protected String getUrl(String[] args) {
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        for (String arg : args) {
+            resultUrl.append(arg + "/");
+        }
+        String url = resultUrl.toString();
+        return url.substring(0, url.length() - 1); //remove the trailing '/'
+    }
+
+    /**
      * General function for sending an http request and returning the response
      * @param URLRequest
      * @return String response
@@ -264,6 +278,21 @@ abstract class Robot {
 
         httpRequestOut(symbolUrl);
     }
+
+    /**
+     * Set the buzzer to play the given note for the given duration
+     * @param note - midi note number to play (Range: 32 to 135)
+     * @param beats - duration in beats (Range: 0 to 16)
+     */
+    public void playNote(int note, double beats) {
+        note = clampParameterToBounds(note, 32, 135);
+        beats = clampParameterToBounds(beats,0,16);
+        beats = beats * 1000;
+
+        String [] urlArgs = {"out", "playnote", Integer.toString(note), Integer.toString((int)beats), deviceInstance};
+        String url = getUrl(urlArgs);
+        httpRequestOut(url);
+    }
    
     /**
      * getAccelerationInDirs returns acceleration value in a specified direction.
@@ -352,8 +381,9 @@ abstract class Robot {
      * @return true if the button is pressed and false otherwise.
      */
     public boolean getButton(String button) {
-        if (!(button.equals("A") || button.equals("B"))) {
-            System.out.println("Error: Please choose button A or B");
+        button = button.toUpperCase();
+        if (!(button.equals("A") || button.equals("B") || button.equals("LOGO"))) {
+            System.out.println("Error: Please choose button A, B, or Logo");
             return false;
         }
         
@@ -367,6 +397,31 @@ abstract class Robot {
           
     }
 
+    /**
+     * getSound() returns the current sound level from the micro:bit sound sensor
+     * @return sound level
+     */
+    public int getSound() {
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String soundUrl = (resultUrl.append("in/")
+                .append("V2sensor/Sound/")
+                .append(deviceInstance)).toString();
+
+        return (int) Math.round(httpRequestInDouble(soundUrl));
+    }
+
+    /**
+     * getTemperature() returns the current temperature in degrees Celcius from the micro:bit temperature sensor
+     * @return temperature in degrees Celcius
+     */
+    public int getTemperature() {
+        StringBuilder resultUrl = new StringBuilder(baseUrl);
+        String tempUrl = (resultUrl.append("in/")
+                .append("V2sensor/Temperature/")
+                .append(deviceInstance)).toString();
+
+        return (int) Math.round(httpRequestInDouble(tempUrl));
+    }
 
     /**
      * getOrientationBoolean checks whether the device currently being held to a specific orientation or shaken.

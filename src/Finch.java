@@ -116,20 +116,6 @@ public class Finch extends Robot {
     }
 
     /**
-     * Create a url string given a list of arguments to include
-     * @param args
-     * @return
-     */
-    private String getUrl(String [] args) {
-        StringBuilder resultUrl = new StringBuilder(baseUrl);
-        for (String arg : args) {
-            resultUrl.append(arg + "/");
-        }
-        String url = resultUrl.toString();
-        return url.substring(0, url.length() - 1); //remove the trailing '/'
-    }
-
-    /**
      * Send a command to move the finch and wait until the finch has finished
      * its motion to return. Used by setMove and setTurn.
      * @param motion - Move or turn
@@ -279,21 +265,6 @@ public class Finch extends Robot {
     }
 
     /**
-     * Set the finch buzzer to play the given note for the given duration
-     * @param note - midi note number to play (Range: 32 to 135)
-     * @param beats - duration in beats (Range: 0 to 16)
-     */
-    public void playNote(int note, double beats) {
-        note = clampParameterToBounds(note, 32, 135);
-        beats = clampParameterToBounds(beats,0,16);
-        beats = beats * 1000;
-
-        String [] urlArgs = {"out", "playnote", Integer.toString(note), Integer.toString((int)beats), deviceInstance};
-        String url = getUrl(urlArgs);
-        httpRequestOut(url);
-    }
-
-    /**
      * Reset the finch encoder values to 0.
      */
     public void resetEncoders() {
@@ -336,7 +307,7 @@ public class Finch extends Robot {
      */
     public int getDistance() {
         double value = getSensor("Distance", "static");
-        return (int) Math.round(value * 0.0919);
+        return (int) Math.round(value);
     }
 
     /**

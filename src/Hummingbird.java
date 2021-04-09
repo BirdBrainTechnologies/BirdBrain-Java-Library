@@ -208,21 +208,6 @@ public class Hummingbird extends Robot {
         httpRequestOut(triLedUrl);
           
     }
-    
-    void playNote(int note, double beats) {
-    	note = clampParameterToBounds(note, 32, 135);
-    	beats = clampParameterToBounds(beats,0,16);
-    	    	
-    	
-		beats = beats * 1000;
-		StringBuilder resultUrl = new StringBuilder(baseUrl);
-        String buzzerUrl = (resultUrl.append("out/")
-                .append("playnote/")
-                .append(Integer.toString(note) + "/")
-                .append(Integer.toString((int)beats) + "/")
-                .append(deviceInstance)).toString();
-       httpRequestOut(buzzerUrl);
-    }
 
     /**
      * getSensorValue returns the raw sensor value at a given port
