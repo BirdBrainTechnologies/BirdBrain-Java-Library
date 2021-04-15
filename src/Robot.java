@@ -152,20 +152,24 @@ abstract class Robot {
     /* This function sends http requests that return a double response from a sensor. */
     protected double httpRequestInDouble(String URLRequest) {
         String stringResponse = sendHttpRequest(URLRequest);
-        if (stringResponse.equals("Not Connected")) {
+        try {
+            double value = Double.parseDouble(stringResponse);
+            return value;
+        } catch(Exception e) {
+            System.out.println("Error: " + stringResponse);
             return -1;
-        } else {
-            return Double.parseDouble(stringResponse);
         }
     }
     
     /* This function sends http requests that return a boolean response from a sensor. */
     protected boolean httpRequestInBoolean(String URLRequest) {
         String stringResponse = sendHttpRequest(URLRequest);
-        if (stringResponse.equals("Not Connected")) {
+        if (!stringResponse.equalsIgnoreCase("true")
+                && !stringResponse.equalsIgnoreCase("false")) {
+            System.out.println("Error: " + stringResponse);
             return false;
         } else {
-            return (stringResponse.equals("true"));
+            return (stringResponse.equalsIgnoreCase("true"));
         }
     }
 
