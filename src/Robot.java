@@ -286,7 +286,7 @@ abstract class Robot {
     /**
      * Set the buzzer to play the given note for the given duration
      * @param note - midi note number to play (Range: 32 to 135)
-     * @param beats - duration in beats (Range: 0 to 16)
+     * @param beats - duration in beats (Range: 0 to 16); each beat is one second
      */
     public void playNote(int note, double beats) {
         note = clampParameterToBounds(note, 32, 135);
