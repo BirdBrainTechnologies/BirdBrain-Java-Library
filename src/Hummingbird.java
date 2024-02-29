@@ -1,5 +1,5 @@
 /**
- * This class extends the Microbit class to incorporate functions to control the inputs and outputs
+ * This class extends the Robot class to incorporate functions to control the inputs and outputs
  * of the Hummingbird Bit. It includes methods to set the values of motors and LEDs, as well
  * as methods to read the values of the sensors.
  * 
@@ -35,8 +35,8 @@ public class Hummingbird extends Robot {
         }
     }
     
-    /** This function tries to read sensor 4 (the Hummingbird battery) to determine whether or not
-     * the device is a Hummingbird.
+    /** 
+     * Return true if the device is a Hummingbird.
      */
     private boolean isHummingbird() {
         StringBuilder newURL = new StringBuilder(baseUrl);
@@ -53,32 +53,9 @@ public class Hummingbird extends Robot {
         } else {
             return true;
         }
-        /*
-    	try { 
-	    	StringBuilder newURL = new StringBuilder(baseUrl);
-	        String testURL = (newURL.append("in/")
-	                .append("sensor/4/")
-	                .append(deviceInstance)).toString();
-	   	
-	       requestUrl = new URL(testURL);
-	       connection = (HttpURLConnection) requestUrl.openConnection();
-	       connection.setRequestMethod("GET");
-	       connection.setDoOutput(true);
-	
-	       String stringResponse = verifyResponse();
-	       if (stringResponse.equals("255")) {
-	    	   System.out.println("Error: Device "+deviceInstance+" is not a Hummingbird");
-	    	   return false;
-	       }
-	       else {
-	    	   return true;
-	       }
-		} catch (IOException e) {
-	       System.out.println("Error: Device " + deviceInstance + " is not connected");
-	       return false;
-	   }
-    	*/
+        
     }
+
     /* This function checks whether a port is within the given bounds. It returns a boolean value 
 	   that is either true or false and prints an error if necessary. */
 	protected boolean isPortValid(int port, int portMax) {
@@ -152,7 +129,7 @@ public class Hummingbird extends Robot {
      * setLED sets the LED at a given port to a specific light intensity.
      * The function shows a warning dialog if the inputs are not in the specified range.
      *
-     * @param port      The port that the LED is attached to. (Range: 1-4)
+     * @param port      The port that the LED is attached to. (Range: 1-3)
      * @param intensity The intensity of the LED. (Range: 0-100)
      */
     public void setLED(int port, int intensity) {
@@ -178,7 +155,7 @@ public class Hummingbird extends Robot {
      * setTriLED sets the triLED at a given port to a specific color.
      * The function shows a warning dialog if the inputs are not in the specified range.
      *
-     * @param port           The port that the LED is attached to. (Range: 1-4)
+     * @param port           The port that the LED is attached to. (Range: 1-2)
      * @param redIntensity   The intensity of red light of the triLED. (Range: 0-100)
      * @param greenIntensity The intensity of green light of the triLED. (Range: 0-100)
      * @param blueIntensity  The intensity of blue light of the triLED. (Range: 0-100)
@@ -263,7 +240,7 @@ public class Hummingbird extends Robot {
      * getDial returns dial value at a given port after processing the raw sensor value retrieved.
      * The function shows a warning dialog if the inputs are not in the specified range.
      *
-     * @param port The port that the dial is attached to. (Range: 1-4)
+     * @param port The port that the dial is attached to. (Range: 1-3)
      */
     public int getDial(int port) {
     	int sensorResponse = getSensorValue(port);
@@ -272,10 +249,10 @@ public class Hummingbird extends Robot {
     }
     
     /**
-     * getDial returns dial value at a given port after processing the raw sensor value retrieved.
+     * getVoltage returns voltage value at a given port after processing the raw sensor value retrieved.
      * The function shows a warning dialog if the inputs are not in the specified range.
      *
-     * @param port The port that the dial is attached to. (Range: 1-4)
+     * @param port The port that the dial is attached to. (Range: 1-3)
      */
     public double getVoltage(int port) {
     	int sensorResponse = getSensorValue(port);

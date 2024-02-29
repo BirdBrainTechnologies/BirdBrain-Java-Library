@@ -415,8 +415,8 @@ abstract class Robot {
     }
 
     /**
-     * getTemperature() returns the current temperature in degrees Celcius from the micro:bit temperature sensor
-     * @return temperature in degrees Celcius
+     * getTemperature() returns the current temperature in degrees Celsius from the micro:bit temperature sensor
+     * @return temperature in degrees Celsius
      */
     public int getTemperature() {
         StringBuilder resultUrl = new StringBuilder(baseUrl);

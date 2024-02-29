@@ -159,7 +159,7 @@ public class Finch extends Robot {
     }
 
     /**
-     * Sends a request for the finch to turn right or left to the give angle
+     * Sends a request for the finch to turn right or left to the given angle
      * at the given speed.
      * @param direction - R or L for right or left
      * @param angle - Angle of the turn in degrees (Range: 0 to 360)
@@ -177,8 +177,8 @@ public class Finch extends Robot {
 
     /**
      * Set the right and left motors of the finch to the speeds given.
-     * @param leftSpeed - Speed as a percent (Range: 0 to 100)
-     * @param rightSpeed - Speed as a percent (Range: 0 to 100)
+     * @param leftSpeed - Speed as a percent (Range: -100 to 100)
+     * @param rightSpeed - Speed as a percent (Range: -100 to 100)
      */
     public void setMotors(double leftSpeed, double rightSpeed) {
         leftSpeed = clampParameterToBounds(leftSpeed, -100, 100);
@@ -336,7 +336,7 @@ public class Finch extends Robot {
      * Checks whether or not the finch is in the given orientation.
      *
      * @param orientation - Orientation to check
-     * @return - True iff the finch is in the given orientation
+     * @return - True if the finch is in the given orientation
      */
     private boolean getOrientationBoolean(String orientation) {
         String [] urlArgs = {"in", "finchOrientation", orientation, deviceInstance};
